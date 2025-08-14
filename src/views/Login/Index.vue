@@ -1,146 +1,117 @@
 <template>
   <div class="login-container">
-    <!-- 背景装饰 -->
-    <div class="background-decoration">
-      <div class="bubble bubble-1"></div>
-      <div class="bubble bubble-2"></div>
-      <div class="bubble bubble-3"></div>
-      <div class="bubble bubble-4"></div>
-      <div class="bubble bubble-5"></div>
-    </div>
-    
-    <div class="login-card">
-      <div class="text-center mb-4">
-        <div class="logo-container">
-          <i class="fas fa-crown text-primary"></i>
-          <div class="logo-glow"></div>
+    <!-- 品牌区域 -->
+    <div class="brand-section">
+      <div class="logo-container">
+        <div class="logo-placeholder">
+          <!-- 图片占位符，后续插入logo -->
         </div>
-        <h3 class="mt-3 mb-1 title-gradient">Login</h3>
-        <p class="text-muted subtitle">Jinmu Admin Dashboard</p>
+        <h1 class="brand-name">JIMON GROUP</h1>
       </div>
-      
-      <form @submit.prevent="handleLogin" class="login-form">
-        <div class="mb-3">
-          <label class="form-label">Username</label>
-          <div class="input-group input-group-modern">
-            <span class="input-group-text">
-              <i class="fas fa-user"></i>
-            </span>
-            <input 
-              type="text" 
-              class="form-control" 
-              v-model="loginForm.username"
-              placeholder="Username"
-              required
-            >
-          </div>
+    </div>
+
+    <!-- 主登录面板 -->
+    <div class="login-panel">
+      <!-- 左侧抽象设计区域 (PC端显示) -->
+      <div class="design-section">
+        <div class="abstract-design-placeholder">
+          <!-- 图片占位符，后续插入抽象设计 -->
         </div>
-        
-        <div class="mb-3">
-          <label class="form-label">Password</label>
-          <div class="input-group input-group-modern">
-            <span class="input-group-text">
-              <i class="fas fa-lock"></i>
-            </span>
-            <input 
-              :type="showPassword ? 'text' : 'password'" 
-              class="form-control" 
-              v-model="loginForm.password"
-              placeholder="Password"
-              required
-            >
-            <button 
-              type="button" 
-              class="btn btn-outline-secondary password-toggle"
-              @click="showPassword = !showPassword"
-            >
-              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+      </div>
+
+      <!-- 右侧登录表单区域 -->
+      <div class="form-section">
+        <div class="form-container">
+          <h2 class="login-title">Login Account</h2>
+          
+          <form @submit.prevent="handleLogin" class="login-form">
+            <!-- Member ID 输入框 -->
+            <div class="form-group">
+              <label for="memberId" class="form-label">member ID</label>
+              <input
+                id="memberId"
+                v-model="formData.memberId"
+                type="text"
+                class="form-input"
+                placeholder="Enter your member ID"
+                required
+              />
+            </div>
+
+            <!-- Password 输入框 -->
+            <div class="form-group">
+              <label for="password" class="form-label">Password</label>
+              <div class="password-input-container">
+                <input
+                  id="password"
+                  v-model="formData.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  class="form-input"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  class="password-toggle"
+                  @click="togglePassword"
+                >
+                  <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- 选项和链接 -->
+            <div class="form-options">
+              <label class="checkbox-container">
+                <input
+                  v-model="formData.autoLogin"
+                  type="checkbox"
+                  class="checkbox-input"
+                />
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">Log in automatically</span>
+              </label>
+              <a href="#" class="forgot-password">Forgot password</a>
+            </div>
+
+            <!-- 登录按钮 -->
+            <button type="submit" class="login-button">
+              Log in
             </button>
-          </div>
+          </form>
         </div>
-        
-        <div class="mb-3 form-check modern-checkbox">
-          <input 
-            type="checkbox" 
-            class="form-check-input" 
-            id="rememberMe"
-            v-model="loginForm.remember"
-          >
-          <label class="form-check-label" for="rememberMe">
-            Remember me
-          </label>
-        </div>
-        
-        <button 
-          type="submit" 
-          class="btn btn-primary w-100 mb-3 login-btn"
-          :disabled="loading"
-        >
-          <i v-if="loading" class="fas fa-spinner fa-spin me-2"></i>
-          <span>Login</span>
-        </button>
-        
-        <div class="text-center">
-          <a href="#" class="text-decoration-none forgot-password">
-            Forgot Password?
-          </a>
-        </div>
-      </form>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
 
 export default {
-  name: 'Login',
+  name: 'LoginIndex',
   setup() {
-    const router = useRouter()
-    
-    const loading = ref(false)
     const showPassword = ref(false)
-    
-    const loginForm = reactive({
-      username: '',
+    const formData = reactive({
+      memberId: '',
       password: '',
-      remember: false
+      autoLogin: false
     })
-    
-    const handleLogin = async () => {
-      loading.value = true
-      
-      try {
-        // 模拟登录API调用
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // 模拟登录成功
-        if (loginForm.username === 'admin' && loginForm.password === 'admin') {
-          const token = 'mock-jwt-token'
-          
-          if (loginForm.remember) {
-            localStorage.setItem('token', token)
-          } else {
-            sessionStorage.setItem('token', token)
-          }
-          
-          router.push('/dashboard')
-        } else {
-          alert('Invalid username or password! Please use admin/admin to login')
-        }
-      } catch (error) {
-        console.error('Login error:', error)
-        alert('Login failed, please try again')
-      } finally {
-        loading.value = false
-      }
+
+    const togglePassword = () => {
+      showPassword.value = !showPassword.value
     }
-    
+
+    const handleLogin = () => {
+      // 处理登录逻辑
+      console.log('Login attempt:', formData)
+      // 这里可以添加实际的登录API调用
+    }
+
     return {
-      loading,
       showPassword,
-      loginForm,
+      formData,
+      togglePassword,
       handleLogin
     }
   }
@@ -148,411 +119,406 @@ export default {
 </script>
 
 <style scoped>
+/* 基础样式 */
+* {
+  box-sizing: border-box;
+}
+
 .login-container {
   min-height: 100vh;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 50%, #e8f5e8 100%);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  flex-direction: column;
   position: relative;
-  overflow: hidden;
 }
 
-.background-decoration {
+/* 品牌区域 */
+.brand-section {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.bubble {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  animation: float 6s ease-in-out infinite;
-}
-
-.bubble-1 {
-  width: 80px;
-  height: 80px;
-  top: 20%;
-  left: 10%;
-  animation-delay: 0s;
-}
-
-.bubble-2 {
-  width: 60px;
-  height: 60px;
-  top: 60%;
-  right: 10%;
-  animation-delay: 2s;
-}
-
-.bubble-3 {
-  width: 40px;
-  height: 40px;
-  top: 80%;
-  left: 20%;
-  animation-delay: 4s;
-}
-
-.bubble-4 {
-  width: 100px;
-  height: 100px;
-  top: 10%;
-  right: 20%;
-  animation-delay: 1s;
-}
-
-.bubble-5 {
-  width: 30px;
-  height: 30px;
-  top: 40%;
-  left: 80%;
-  animation-delay: 3s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-    opacity: 0.3;
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-    opacity: 0.7;
-  }
-}
-
-.login-card {
-  width: 100%;
-  max-width: 420px;
-  padding: 50px 40px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 24px;
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  animation: slideUp 0.6s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  top: 20px;
+  left: 20px;
+  z-index: 10;
 }
 
 .logo-container {
-  position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.logo-container i {
-  font-size: 4rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.logo-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #32cd32 0%, #32cd32 50%, #ffd700 50%, #ffd700 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: relative;
-  z-index: 2;
 }
 
-.logo-glow {
+.logo-placeholder::before {
+  content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+  width: 60%;
+  height: 60%;
+  background: linear-gradient(135deg, #32cd32 0%, #ffd700 100%);
   border-radius: 50%;
-  animation: glow 3s ease-in-out infinite alternate;
+  opacity: 0.8;
 }
 
-@keyframes glow {
-  0% {
-    opacity: 0.6;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1);
-  }
+.brand-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-.title-gradient {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 700;
-  font-size: 2rem;
+/* 主登录面板 */
+.login-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  margin-top: 80px;
 }
 
-.subtitle {
-  font-size: 1rem;
-  color: #6c757d;
-  margin-bottom: 0;
-}
-
-.login-form {
-  animation: fadeIn 0.8s ease-out 0.2s both;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.input-group-modern {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.input-group-modern:focus-within {
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
-  transform: translateY(-2px);
-}
-
-.input-group-text {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border: none;
-  border-right: 1px solid #dee2e6;
-  color: #667eea;
-  font-weight: 500;
-}
-
-.form-control {
-  border: none;
-  border-left: 1px solid #dee2e6;
-  padding: 12px 16px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.form-control:focus {
-  box-shadow: none;
-  border-color: #667eea;
-  background-color: #f8f9ff;
-}
-
-.password-toggle {
-  border: none;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  color: #667eea;
-  border-left: 1px solid #dee2e6;
-  transition: all 0.3s ease;
-}
-
-.password-toggle:hover {
-  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
-  color: #5a6fd8;
-}
-
-.modern-checkbox {
-  margin: 1.5rem 0;
-}
-
-.form-check-input {
-  width: 1.2em;
-  height: 1.2em;
-  margin-top: 0.1em;
-  border-radius: 0.3em;
-  border: 2px solid #667eea;
-  transition: all 0.3s ease;
-}
-
-.form-check-input:checked {
-  background-color: #667eea;
-  border-color: #667eea;
-}
-
-.form-check-label {
-  font-weight: 500;
-  color: #495057;
-  margin-left: 0.5rem;
-}
-
-.login-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  padding: 14px 20px;
-  font-weight: 600;
-  font-size: 1.1rem;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.login-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-}
-
-.login-btn:active {
-  transform: translateY(0);
-}
-
-.login-btn:disabled {
-  opacity: 0.7;
-  transform: none;
-}
-
-.forgot-password {
-  color: #667eea;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.forgot-password:hover {
-  color: #5a6fd8;
-  text-decoration: underline !important;
-}
-
-@media (max-width: 480px) {
+/* 移动端样式 */
+@media (max-width: 768px) {
   .login-container {
-    padding: 15px;
+    background: white;
+    padding: 0;
   }
-  
-  .login-card {
-    padding: 40px 30px;
-    margin: 20px;
-    min-height: auto;
+
+  .brand-section {
+    position: relative;
+    top: auto;
+    left: auto;
+    padding: 20px;
+    margin-bottom: 20px;
   }
-  
-  .title-gradient {
-    font-size: 1.6rem;
+
+  .logo-container {
+    justify-content: flex-start;
   }
-  
-  .logo-container i {
-    font-size: 3rem;
+
+  .logo-placeholder {
+    width: 32px;
+    height: 32px;
   }
-  
-  .login-btn {
-    padding: 14px 20px;
-    font-size: 1rem;
-    min-height: 48px;
+
+  .brand-name {
+    font-size: 18px;
+  }
+
+  .login-panel {
+    flex-direction: column;
+    margin-top: 0px;
+    padding: 0 20px;
+    align-items: stretch;
     width: 100%;
+  }
+
+  .design-section {
+    display: none;
+  }
+
+  .form-section {
+    width: 100%;
+    max-width: none;
+    background: transparent;
+  }
+
+  .form-container {
+    background: transparent;
+    border-radius: 0;
+    padding: 10px;
+    box-shadow: none;
+    width: 100%;
+    max-width: none;
+    margin-top: -200px;
+  }
+
+  .login-title {
+    font-size: 24px;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .form-input {
+    background: white;
+    border: 1px solid #e0e0e0;
+  }
+
+  .form-options {
+    margin-top: 15px;
+  }
+
+  .forgot-password {
+    color: #32cd32;
+  }
+
+  .login-button {
+    background: #32cd32;
+    margin-top: 20px;
+  }
+
+  .login-button:hover {
+    background: #28a745;
+  }
+}
+
+/* PC端样式 */
+@media (min-width: 769px) {
+  .login-panel {
+    width: 100%;
+    max-width: 1000px;
+    margin: 80px auto 0;
+  }
+
+  .design-section {
+    flex: 1;
+    background: #1a5f7a;
+    border-radius: 12px 0 0 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    touch-action: manipulation;
+    position: relative;
+    overflow: hidden;
   }
-  
-  .lang-btn {
-    padding: 8px 10px;
-    font-size: 0.8rem;
-    border-radius: 6px;
-    min-height: 40px;
-    touch-action: manipulation;
+
+  .abstract-design-placeholder {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(45deg, #ffd700, #ff8c00, #32cd32);
+    border-radius: 50%;
+    opacity: 0.8;
+    position: relative;
   }
-  
-  .language-selector .btn-group {
-    gap: 4px;
+
+  .abstract-design-placeholder::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    height: 80%;
+    background: linear-gradient(45deg, #ff8c00, #32cd32);
+    border-radius: 50%;
+    opacity: 0.6;
   }
-  
-  .form-control {
+
+  .form-section {
+    flex: 2;
+    background: white;
+    border-radius: 0 12px 12px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .form-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+  }
+}
+
+/* 表单样式 */
+.login-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  text-transform: lowercase;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  background: white;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #1a5f7a;
+  box-shadow: 0 0 0 3px rgba(26, 95, 122, 0.1);
+}
+
+.form-input::placeholder {
+  color: #999;
+}
+
+/* 密码输入框容器 */
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 4px;
+  font-size: 16px;
+}
+
+.password-toggle:hover {
+  color: #333;
+}
+
+/* 选项和链接 */
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.checkbox-input {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ddd;
+  border-radius: 3px;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.checkbox-input:checked + .checkbox-custom {
+  background: #1a5f7a;
+  border-color: #1a5f7a;
+}
+
+.checkbox-input:checked + .checkbox-custom::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.checkbox-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1;
+}
+
+.forgot-password {
+  font-size: 14px;
+  color: #1a5f7a;
+  text-decoration: none;
+  font-weight: 500;
+  line-height: 44px;
+
+}
+
+.forgot-password:hover {
+  text-decoration: underline;
+}
+
+/* 登录按钮 */
+.login-button {
+  width: 100%;
+  padding: 14px;
+  background: #1a5f7a;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  background: #134b5f;
+}
+
+.login-button:active {
+  transform: translateY(1px);
+}
+
+/* 响应式调整 */
+@media (max-width: 480px) {
+  .brand-section {
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+
+  .login-panel {
+    padding: 0 15px;
+  }
+
+  .login-title {
+    font-size: 22px;
+    margin-bottom: 25px;
+  }
+
+  .form-input {
     padding: 14px 16px;
-    font-size: 1rem;
-    min-height: 48px;
-    border-radius: 8px;
+    font-size: 16px; /* 防止iOS缩放 */
   }
-  
-  .form-check-input {
-    min-height: 20px;
-    min-width: 20px;
-  }
-  
-  .form-check-label {
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
-}
 
-@media (max-width: 360px) {
-  .login-container {
-    padding: 10px;
+  .form-options {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
   }
-  
-  .login-card {
-    padding: 30px 20px;
-    margin: 10px;
-  }
-  
-  .lang-btn {
-    padding: 6px 8px;
-    font-size: 0.75rem;
-    min-height: 38px;
-  }
-  
-  .language-selector .btn-group {
-    gap: 2px;
-  }
-  
-  .login-btn {
-    padding: 16px 20px;
-    font-size: 1rem;
-    min-height: 50px;
-  }
-  
-  .form-control {
-    padding: 16px 18px;
-    font-size: 1rem;
-    min-height: 50px;
-  }
-  
-  .title-gradient {
-    font-size: 1.4rem;
-  }
-  
-  .logo-container i {
-    font-size: 2.5rem;
-  }
-}
 
-@media (max-width: 320px) {
-  .login-container {
-    padding: 8px;
-  }
-  
-  .login-card {
-    padding: 25px 15px;
-    margin: 8px;
-  }
-  
-  .login-btn {
-    padding: 18px 20px;
-    font-size: 1rem;
-    min-height: 52px;
-  }
-  
-  .form-control {
-    padding: 18px 20px;
-    font-size: 1rem;
-    min-height: 52px;
-  }
-  
-  .lang-btn {
-    padding: 8px 10px;
-    font-size: 0.8rem;
-    min-height: 40px;
+  .login-button {
+    padding: 16px;
+    font-size: 16px;
   }
 }
-</style> 
+</style>
