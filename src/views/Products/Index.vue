@@ -9,7 +9,7 @@
           <span>Self-pickup (Pakistan)</span>
         </div>
         <div class="header-actions">
-          <button class="btn btn-outline-success me-2">
+          <button class="btn btn-outline-success me-2" @click="openAddressModal">
             Change of address
           </button>
           <button class="btn btn-success">
@@ -171,7 +171,7 @@
           <span>Self-pickup (Pakistan)</span>
         </div>
         <div class="header-actions">
-          <button class="btn btn-outline-success me-2">
+          <button class="btn btn-outline-success me-2" @click="openAddressModal">
             Change of address
           </button>
           <button class="btn btn-success">
@@ -307,17 +307,22 @@
         </button>
       </div>
     </div>
+
+    <!-- 地址管理组件 -->
+    <AddressList ref="addressListRef" />
   </div>
 </template>
 
 <script>
 import { ref, computed, onMounted } from 'vue'
 import Pagination from '@/components/Pagination.vue'
+import AddressList from './components/list.vue'
 
 export default {
   name: 'Cart',
   components: {
-    Pagination
+    Pagination,
+    AddressList
   },
   setup() {
     const isMobile = ref(false)
@@ -327,6 +332,7 @@ export default {
     const memberDiscount = ref('0.65')
     const memberLevel = ref('Silver Diamond Member')
     const balance = ref(4.00)
+    const addressListRef = ref(null)
 
     // 模拟产品数据
     const allProducts = ref([
@@ -731,6 +737,12 @@ export default {
       isMobile.value = isMobileDevice || isSmallScreen
     }
 
+    const openAddressModal = () => {
+      if (addressListRef.value) {
+        addressListRef.value.openAddressModal()
+      }
+    }
+
     onMounted(() => {
       checkDeviceType()
       window.addEventListener('resize', checkDeviceType)
@@ -748,12 +760,14 @@ export default {
       totalAmount,
       promoTotal,
       actualPayment,
+      addressListRef,
       formatPrice,
       increaseQuantity,
       decreaseQuantity,
       updateQuantity,
       handlePageChange,
-      handlePayment
+      handlePayment,
+      openAddressModal
     }
   }
 }
