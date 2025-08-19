@@ -1,7 +1,10 @@
 <template>
   <div class="cart-container">
+    <!-- 订单列表组件 -->
+    <OrderList v-if="showOrderList" @go-back="toggleOrderList" />
+    
     <!-- Web版本 -->
-    <div class="web-cart" v-if="!isMobile">
+    <div class="web-cart" v-if="!isMobile && !showOrderList">
       <!-- Header -->
       <div class="cart-header">
         <div class="location-info">
@@ -12,7 +15,7 @@
           <button class="btn btn-outline-success me-2" @click="openAddressModal">
             Change of address
           </button>
-          <button class="btn btn-success">
+          <button class="btn btn-success" @click="toggleOrderList">
             Order list
           </button>
         </div>
@@ -163,7 +166,7 @@
     </div>
 
     <!-- Mobile版本 -->
-    <div class="mobile-cart" v-else>
+    <div class="mobile-cart" v-if="isMobile && !showOrderList">
       <!-- Header -->
       <div class="cart-header">
         <div class="location-info">
@@ -174,7 +177,7 @@
           <button class="btn btn-outline-success me-2" @click="openAddressModal">
             Change of address
           </button>
-          <button class="btn btn-success">
+          <button class="btn btn-success" @click="toggleOrderList">
             Order list
           </button>
         </div>
@@ -317,12 +320,14 @@
 import { ref, computed, onMounted } from 'vue'
 import Pagination from '@/components/Pagination.vue'
 import AddressList from './components/list.vue'
+import OrderList from './components/orderList.vue'
 
 export default {
   name: 'Cart',
   components: {
     Pagination,
-    AddressList
+    AddressList,
+    OrderList
   },
   setup() {
     const isMobile = ref(false)
@@ -333,6 +338,7 @@ export default {
     const memberLevel = ref('Silver Diamond Member')
     const balance = ref(4.00)
     const addressListRef = ref(null)
+    const showOrderList = ref(false)
 
     // 模拟产品数据
     const allProducts = ref([
@@ -743,6 +749,10 @@ export default {
       }
     }
 
+    const toggleOrderList = () => {
+      showOrderList.value = !showOrderList.value
+    }
+
     onMounted(() => {
       checkDeviceType()
       window.addEventListener('resize', checkDeviceType)
@@ -761,13 +771,15 @@ export default {
       promoTotal,
       actualPayment,
       addressListRef,
+      showOrderList,
       formatPrice,
       increaseQuantity,
       decreaseQuantity,
       updateQuantity,
       handlePageChange,
       handlePayment,
-      openAddressModal
+      openAddressModal,
+      toggleOrderList
     }
   }
 }
