@@ -96,67 +96,67 @@
           />
         </div>
 
-        <!-- Right Section - Order Summary -->
-        <div class="order-summary">
-          <div class="summary-card">
-            <!-- Discount Info -->
-            <div class="discount-section">
-              <div class="discount-info">
-                <span class="discount-amount">{{ memberDiscount }} Current discount</span>
-                <span class="member-level">{{ memberLevel }}</span>
+        <!-- Right Section - Payment Module -->
+        <div class="payment-module">
+          <!-- Discount Info -->
+          <div class="discount-section">
+            <div class="discount-info">
+              <span class="discount-amount">{{ memberDiscount }} Current discount</span>
+              <span class="member-level">{{ memberLevel }}</span>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="payment-section">
+            <h6 class="section-title">Method of payment:</h6>
+            <div class="payment-options">
+              <div class="payment-option">
+                <input 
+                  type="radio" 
+                  id="balance" 
+                  name="payment" 
+                  value="balance"
+                  v-model="selectedPayment"
+                  class="payment-radio"
+                >
+                <label for="balance" class="payment-label">
+                  Balance-${{ formatPrice(balance) }}
+                </label>
+              </div>
+              <div class="payment-option">
+                <input 
+                  type="radio" 
+                  id="online" 
+                  name="payment" 
+                  value="online"
+                  v-model="selectedPayment"
+                  class="payment-radio"
+                >
+                <label for="online" class="payment-label">
+                  Online payment
+                </label>
               </div>
             </div>
+          </div>
 
-            <!-- Payment Method -->
-            <div class="payment-section">
-              <h6 class="section-title">Method of payment:</h6>
-              <div class="payment-options">
-                <div class="payment-option">
-                  <input 
-                    type="radio" 
-                    id="balance" 
-                    name="payment" 
-                    value="balance"
-                    v-model="selectedPayment"
-                    class="payment-radio"
-                  >
-                  <label for="balance" class="payment-label">
-                    Balance-${{ formatPrice(balance) }}
-                  </label>
-                </div>
-                <div class="payment-option">
-                  <input 
-                    type="radio" 
-                    id="online" 
-                    name="payment" 
-                    value="online"
-                    v-model="selectedPayment"
-                    class="payment-radio"
-                  >
-                  <label for="online" class="payment-label">
-                    Online payment
-                  </label>
-                </div>
-              </div>
+          <!-- Order Summary -->
+          <div class="summary-section">
+            <div class="summary-row">
+              <span class="summary-label">Totally</span>
+              <span class="summary-value">${{ formatPrice(totalAmount) }}</span>
             </div>
-
-            <!-- Order Totals -->
-            <div class="totals-section">
-              <div class="total-row">
-                <span class="total-label">Totally</span>
-                <span class="total-value">${{ formatPrice(totalAmount) }}</span>
-              </div>
-              <div class="total-row">
-                <span class="total-label">Promo Price</span>
-                <span class="total-value">${{ formatPrice(promoTotal) }}</span>
-              </div>
-              <div class="total-row final-total">
-                <span class="total-label">Actual payment</span>
-                <span class="total-value actual-payment">${{ formatPrice(actualPayment) }}</span>
-              </div>
+            <div class="summary-row">
+              <span class="summary-label">Promo Price</span>
+              <span class="summary-value">${{ formatPrice(promoTotal) }}</span>
             </div>
+            <div class="summary-row final-summary">
+              <span class="summary-label">Actual payment</span>
+              <span class="summary-value actual-payment">${{ formatPrice(actualPayment) }}</span>
+            </div>
+          </div>
 
-            <!-- Pay Button -->
+          <!-- Pay Button -->
+          <div class="pay-section">
             <button class="pay-button" @click="handlePayment">
               Pay Now
             </button>
@@ -835,6 +835,11 @@ export default {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+.web-cart .payment-module {
+  position: sticky;
+  top: 20px;
+}
+
 .web-cart .product-table {
   margin-bottom: 20px;
 }
@@ -960,109 +965,118 @@ export default {
   font-size: 16px;
 }
 
-.web-cart .order-summary {
-  position: sticky;
-  top: 20px;
-}
-
-.web-cart .summary-card {
+.web-cart .payment-module .discount-section {
   background: white;
   border-radius: 8px;
   padding: 20px;
+  margin-bottom: 20px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.web-cart .discount-section {
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.web-cart .discount-info {
+.web-cart .payment-module .discount-info {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
 
-.web-cart .discount-amount {
+.web-cart .payment-module .discount-amount {
   font-size: 16px;
   font-weight: 600;
   color: #28a745;
 }
 
-.web-cart .member-level {
+.web-cart .payment-module .member-level {
   font-size: 14px;
   color: #6c757d;
 }
 
-.web-cart .payment-section {
+.web-cart .payment-module .payment-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
   margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.web-cart .section-title {
+.web-cart .payment-module .section-title {
   font-weight: 600;
   margin-bottom: 15px;
   color: #495057;
 }
 
-.web-cart .payment-options {
+.web-cart .payment-module .payment-options {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.web-cart .payment-option {
+.web-cart .payment-module .payment-option {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.web-cart .payment-radio {
+.web-cart .payment-module .payment-radio {
   width: 18px;
   height: 18px;
   accent-color: #28a745;
+  cursor: pointer;
+  margin: 0;
+  vertical-align: middle;
+  appearance: auto;
+  -webkit-appearance: radio;
+  -moz-appearance: radio;
 }
 
-.web-cart .payment-label {
+.web-cart .payment-module .payment-label {
   font-size: 14px;
   cursor: pointer;
 }
 
-.web-cart .totals-section {
+.web-cart .payment-module .summary-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
   margin-bottom: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #e9ecef;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.web-cart .total-row {
+.web-cart .payment-module .summary-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.web-cart .total-label {
+.web-cart .payment-module .summary-label {
   font-size: 14px;
   color: #6c757d;
 }
 
-.web-cart .total-value {
+.web-cart .payment-module .summary-value {
   font-weight: 600;
   font-size: 16px;
 }
 
-.web-cart .final-total {
+.web-cart .payment-module .final-summary {
   margin-top: 15px;
   padding-top: 15px;
   border-top: 1px solid #e9ecef;
 }
 
-.web-cart .actual-payment {
+.web-cart .payment-module .actual-payment {
   color: #fd7e14;
   font-size: 18px;
 }
 
-.web-cart .pay-button {
+.web-cart .payment-module .pay-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.web-cart .payment-module .pay-button {
   width: 100%;
   background: #28a745;
   color: white;
@@ -1075,7 +1089,7 @@ export default {
   transition: background-color 0.3s;
 }
 
-.web-cart .pay-button:hover {
+.web-cart .payment-module .pay-button:hover {
   background: #218838;
 }
 
@@ -1305,6 +1319,12 @@ export default {
   width: 20px;
   height: 20px;
   accent-color: #28a745;
+  cursor: pointer;
+  margin: 0;
+  vertical-align: middle;
+  appearance: auto;
+  -webkit-appearance: radio;
+  -moz-appearance: radio;
 }
 
 .mobile-cart .payment-label {
@@ -1395,7 +1415,7 @@ export default {
     grid-template-columns: 1fr;
   }
   
-  .web-cart .order-summary {
+  .web-cart .payment-module {
     position: static;
   }
 }
