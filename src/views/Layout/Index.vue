@@ -255,7 +255,7 @@ export default {
 /* 侧边栏样式 */
 .sidebar {
   width: 250px;
-  background: #343a46;
+  background: linear-gradient(180deg, #2d5016 0%, #1a2e0a 100%);
   position: fixed;
   top: 0;
   left: 0;
@@ -263,7 +263,7 @@ export default {
   z-index: 1000;
   transition: all 0.3s ease;
   overflow-y: auto;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar.collapsed {
@@ -285,8 +285,9 @@ export default {
 
 .brand-icon {
   font-size: 1.5rem;
-  color: #667eea;
+  color: #ffffff;
   margin-right: 10px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 .brand-text {
@@ -310,8 +311,8 @@ export default {
   display: flex;
   align-items: center;
   padding: 12px 20px;
-  margin-bottom: 5px;
-  color: #a3a8b8;
+  margin-bottom: 2px;
+  color: rgba(255, 255, 255, 0.8);
   text-decoration: none;
   border-radius: 8px;
   transition: all 0.3s ease;
@@ -320,15 +321,16 @@ export default {
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
-  transform: translateX(5px);
+  transform: translateX(3px);
 }
 
 .nav-item.active {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2);
+  background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+  font-weight: 500;
 }
 
 .nav-icon {
@@ -352,10 +354,11 @@ export default {
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  width: 3px;
-  height: 20px;
-  background: #667eea;
+  width: 4px;
+  height: 30px;
+  background: #4CAF50;
   border-radius: 2px;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
 }
 
 /* 主内容区域 */

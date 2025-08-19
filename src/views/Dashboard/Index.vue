@@ -8,89 +8,116 @@
       </div>
     </div>
     
-    <!-- 统计卡片 -->
+    <!-- 主要数据卡片区域 -->
     <div class="row mb-4">
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
-          <div class="d-flex align-items-center">
-            <div class="stats-icon">
-              <i class="fas fa-users"></i>
-            </div>
-            <div class="ms-3">
-              <div class="stats-number">{{ stats.totalUsers }}</div>
-              <div class="stats-label">Total Users</div>
-            </div>
-          </div>
-        </div>
+      <!-- Total Left PV -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <DataCard
+          title="Total Left PV"
+          :mainValue="pvData.totalLeftPV.main"
+          icon="fas fa-database"
+          iconBgColor="#6f42c1"
+          :subStats="pvData.totalLeftPV.subStats"
+        />
       </div>
       
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
-          <div class="d-flex align-items-center">
-            <div class="stats-icon">
-              <i class="fas fa-box"></i>
-            </div>
-            <div class="ms-3">
-              <div class="stats-number">{{ stats.totalProducts }}</div>
-              <div class="stats-label">Total Products</div>
-            </div>
-          </div>
-        </div>
+      <!-- Total Right PV -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <DataCard
+          title="Total Right PV"
+          :mainValue="pvData.totalRightPV.main"
+          icon="fas fa-chart-line"
+          iconBgColor="#fd7e14"
+          :subStats="pvData.totalRightPV.subStats"
+        />
       </div>
       
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
-          <div class="d-flex align-items-center">
-            <div class="stats-icon">
-              <i class="fas fa-shopping-cart"></i>
-            </div>
-            <div class="ms-3">
-              <div class="stats-number">{{ stats.totalOrders }}</div>
-              <div class="stats-label">Total Orders</div>
-            </div>
-          </div>
-        </div>
+      <!-- Direct Sponsor PV -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <DataCard
+          title="Direct Sponsor PV"
+          :mainValue="pvData.directSponsorPV.main"
+          icon="fas fa-users"
+          iconBgColor="#20c997"
+          :subStats="pvData.directSponsorPV.subStats"
+        />
       </div>
       
-      <div class="col-xl-3 col-md-6 mb-4">
-        <div class="stats-card">
-          <div class="d-flex align-items-center">
-            <div class="stats-icon">
-              <i class="fas fa-dollar-sign"></i>
-            </div>
-            <div class="ms-3">
-              <div class="stats-number">{{ formatCurrency(stats.totalRevenue) }}</div>
-              <div class="stats-label">Total Revenue</div>
-            </div>
-          </div>
-        </div>
+      <!-- InDirect Sponsor PV -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <DataCard
+          title="InDirect Sponsor PV"
+          :mainValue="pvData.indirectSponsorPV.main"
+          icon="fas fa-sitemap"
+          iconBgColor="#e83e8c"
+          :subStats="pvData.indirectSponsorPV.subStats"
+        />
       </div>
     </div>
     
-    <!-- 图表和数据 -->
-    <div class="row">
-      <!-- 销售数据柱状图 -->
-      <div class="col-lg-8 col-md-12 mb-4">
-        <ChartContainer title="月度销售统计" :showActions="true" @refresh="refreshSalesData">
-          <BarChart
-            :data="salesData"
-            :xAxisData="salesMonths"
-            :color="['#667eea', '#764ba2']"
-          />
-        </ChartContainer>
+    <!-- 奖金数据卡片区域 -->
+    <div class="row mb-4">
+      <!-- Direct Bonus -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <BonusCard
+          title="Direct Bonus"
+          :amount="bonusData.directBonus"
+          icon="fas fa-money-bill-wave"
+          iconBgColor="#6c757d"
+        />
       </div>
       
-      <!-- 用户增长折线图 -->
-      <div class="col-lg-4 col-md-12 mb-4">
-        <ChartContainer title="用户增长趋势" :showActions="true" @refresh="refreshUserData">
-          <LineChart
-            :data="userGrowthData"
-            :xAxisData="userGrowthMonths"
-            :color="['#4ecdc4', '#44a08d']"
-            :smooth="true"
-            :showArea="true"
-          />
-        </ChartContainer>
+      <!-- InDirect Bonus -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <BonusCard
+          title="InDirect Bonus"
+          :amount="bonusData.indirectBonus"
+          icon="fas fa-coins"
+          iconBgColor="#6c757d"
+        />
+      </div>
+      
+      <!-- Paring Bonus -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <BonusCard
+          title="Paring Bonus"
+          :amount="bonusData.paringBonus"
+          icon="fas fa-balance-scale"
+          iconBgColor="#6c757d"
+        />
+      </div>
+      
+      <!-- Thank you Bonus -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <BonusCard
+          title="Thank you Bonus"
+          :amount="bonusData.thankYouBonus"
+          icon="fas fa-gift"
+          iconBgColor="#6c757d"
+        />
+      </div>
+    </div>
+    
+    <!-- 社交媒体链接 -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="social-links-card">
+          <h5 class="mb-3">Connect with us</h5>
+          <div class="social-buttons">
+            <a href="#" class="social-btn twitter">
+              <i class="fab fa-twitter"></i>
+              <span>Twitter</span>
+            </a>
+            <a href="#" class="social-btn wechat">
+              <i class="fab fa-weixin"></i>
+              <span>WeChat</span>
+            </a>
+            <a href="#" class="social-btn facebook">
+              <i class="fab fa-facebook"></i>
+              <span>Facebook</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -98,54 +125,60 @@
 
 <script>
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
-import ChartContainer from '@/components/Charts/ChartContainer.vue'
-import BarChart from '@/components/Charts/BarChart.vue'
-import LineChart from '@/components/Charts/LineChart.vue'
+import DataCard from '@/components/DataCard.vue'
+import BonusCard from '@/components/BonusCard.vue'
 
 export default {
   name: 'Dashboard',
   components: {
-    ChartContainer,
-    BarChart,
-    LineChart
+    DataCard,
+    BonusCard
   },
   setup() {
     const currentTime = ref('')
     const timer = ref(null)
     
-    // 统计数据
-    const stats = reactive({
-      totalUsers: 1234,
-      totalProducts: 567,
-      totalOrders: 890,
-      totalRevenue: 123456.78
+    // PV数据
+    const pvData = reactive({
+      totalLeftPV: {
+        main: '40,689',
+        subStats: [
+          { label: 'Newly Added', value: '1,221', color: '#28a745' },
+          { label: 'Total', value: '50,000', color: '#28a745' }
+        ]
+      },
+      totalRightPV: {
+        main: '999',
+        subStats: [
+          { label: 'Newly Added', value: '29', color: '#28a745' },
+          { label: 'Total', value: '50,000', color: '#28a745' }
+        ]
+      },
+      directSponsorPV: {
+        main: '310',
+        subStats: [
+          { label: 'Newly Added', value: '121', color: '#28a745' },
+          { label: 'New Users', value: '100', color: '#28a745' },
+          { label: 'Total Users', value: '10,000', color: '#6c757d' }
+        ]
+      },
+      indirectSponsorPV: {
+        main: '9,000',
+        subStats: [
+          { label: 'Newly Added', value: '31', color: '#28a745' },
+          { label: 'New Users', value: '12', color: '#28a745' },
+          { label: 'Total Users', value: '319', color: '#6c757d' }
+        ]
+      }
     })
     
-    // 销售数据
-    const salesData = ref([320, 450, 380, 520, 670, 590, 720, 850, 930, 680, 750, 820])
-    const salesMonths = ref(['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'])
-    
-    // 用户增长数据
-    const userGrowthData = ref([120, 180, 220, 280, 350, 420, 520, 650, 780, 920, 1080, 1234])
-    const userGrowthMonths = ref(['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'])
-    
-    // 刷新销售数据
-    const refreshSalesData = () => {
-      // 模拟数据刷新
-      salesData.value = salesData.value.map(item => 
-        Math.max(100, item + Math.floor(Math.random() * 100 - 50))
-      )
-    }
-    
-    // 刷新用户增长数据
-    const refreshUserData = () => {
-      // 模拟数据刷新
-      userGrowthData.value = userGrowthData.value.map((item, index) => {
-        const baseGrowth = index * 80 + 100
-        const randomVariation = Math.floor(Math.random() * 100 - 50)
-        return Math.max(baseGrowth, baseGrowth + randomVariation)
-      })
-    }
+    // 奖金数据
+    const bonusData = reactive({
+      directBonus: 40689,
+      indirectBonus: 193,
+      paringBonus: 89000,
+      thankYouBonus: 2040
+    })
     
     // 更新当前时间
     const updateCurrentTime = () => {
@@ -199,16 +232,11 @@ export default {
     
     return {
       currentTime,
-      stats,
-      salesData,
-      salesMonths,
-      userGrowthData,
-      userGrowthMonths,
+      pvData,
+      bonusData,
       formatCurrency,
       formatDate,
-      formatTime,
-      refreshSalesData,
-      refreshUserData
+      formatTime
     }
   }
 }
@@ -233,72 +261,101 @@ export default {
   }
 }
 
-.stats-card {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+/* 社交媒体链接卡片 */
+.social-links-card {
+  background: #fff;
   border-radius: 12px;
-  padding: 20px;
+  padding: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+  text-align: center;
+}
+
+.social-links-card h5 {
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.social-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
   transition: all 0.3s ease;
-  width: 100%;
-  max-width: 100%;
-  overflow: hidden;
+  color: #fff;
+  min-width: 120px;
+  justify-content: center;
 }
 
-.stats-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+.social-btn i {
+  margin-right: 8px;
+  font-size: 18px;
 }
 
-.stats-icon {
-  font-size: 2.5rem;
-  opacity: 0.8;
+.social-btn.twitter {
+  background: #1da1f2;
 }
 
-.stats-number {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 10px 0 5px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.social-btn.twitter:hover {
+  background: #0d8bd9;
+  transform: translateY(-2px);
+  color: #fff;
 }
 
-.stats-label {
-  font-size: 0.9rem;
-  opacity: 0.9;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.social-btn.wechat {
+  background: #07c160;
 }
 
+.social-btn.wechat:hover {
+  background: #06ad56;
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+.social-btn.facebook {
+  background: #4267b2;
+}
+
+.social-btn.facebook:hover {
+  background: #365899;
+  transform: translateY(-2px);
+  color: #fff;
+}
+
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .stats-card {
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  
   .row {
     margin-left: 0;
     margin-right: 0;
   }
   
-  .col-lg-8, .col-lg-4 {
+  .col-lg-3, .col-md-6 {
     padding-left: 10px;
     padding-right: 10px;
   }
   
-  /* 移动端图表高度调整 */
-  .chart-container {
-    height: 350px;
+  .social-buttons {
+    gap: 15px;
+  }
+  
+  .social-btn {
+    min-width: 100px;
+    padding: 10px 16px;
   }
 }
 
 @media (max-width: 576px) {
-  .stats-card {
-    margin-bottom: 10px;
-  }
-  
-  .col-lg-8, .col-lg-4 {
+  .col-lg-3, .col-md-6 {
     padding-left: 5px;
     padding-right: 5px;
   }
@@ -307,20 +364,40 @@ export default {
     margin-bottom: 1rem !important;
   }
   
-  /* 小屏幕图表高度调整 */
-  .chart-container {
-    height: 300px;
+  .social-buttons {
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+  
+  .social-btn {
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  .social-links-card {
+    padding: 20px;
   }
 }
 
 @media (max-width: 375px) {
-  .col-lg-8, .col-lg-4 {
+  .col-lg-3, .col-md-6 {
     padding-left: 3px;
     padding-right: 3px;
   }
   
-  .chart-container {
-    height: 280px;
+  .social-links-card {
+    padding: 15px;
+  }
+  
+  .social-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+  
+  .social-btn i {
+    font-size: 16px;
+    margin-right: 6px;
   }
 }
 </style> 
