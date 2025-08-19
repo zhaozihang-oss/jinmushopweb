@@ -109,12 +109,54 @@
       @save="handleSaveAddress"
     />
     
+    <!-- 删除确认对话框 -->
+    <div 
+      class="modal fade show" 
+      v-if="showDeleteConfirmModal"
+      style="display: block; z-index: 1060;"
+      tabindex="-1"
+    >
+      <div class="modal-dialog modal-dialog-centered delete-confirm-modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Confirm Delete</h5>
+            <button 
+              type="button" 
+              class="btn-close" 
+              @click="closeDeleteConfirmModal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="delete-confirm-content">
+              <p>Are you sure to delete it?</p>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button 
+              type="button" 
+              class="btn btn-danger" 
+              @click="confirmDeleteAddress"
+            >
+              Delete
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary" 
+              @click="closeDeleteConfirmModal"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- 模态框背景遮罩 -->
     <div 
       class="modal-backdrop fade show" 
-      v-if="showAddressModal"
+      v-if="showAddressModal || showDeleteConfirmModal"
       style="z-index: 1045;"
-      @click="closeAddressModal"
+      @click="showAddressModal ? closeAddressModal() : closeDeleteConfirmModal()"
     ></div>
   </div>
 </template>
@@ -122,6 +164,7 @@
 <script>
 import { ref, reactive, computed } from 'vue'
 import AddressAdd from './add.vue'
+import { useMessage } from '@/composables/useMessage'
 
 export default {
   name: 'AddressList',
@@ -129,10 +172,15 @@ export default {
     AddressAdd
   },
   setup() {
+    // 全局消息提示
+    const { showSuccess, showError } = useMessage()
+    
     // 响应式数据
     const showAddressModal = ref(false)
     const showAddressFormModal = ref(false)
     const editingAddress = ref(null)
+    const showDeleteConfirmModal = ref(false)
+    const addressToDelete = ref(null)
     
     // 地址列表数据
     const addresses = ref([
@@ -195,16 +243,31 @@ export default {
     }
     
     const deleteAddress = (addressId) => {
-      if (confirm('Are you sure you want to delete this address?')) {
-        const index = addresses.value.findIndex(addr => addr.id === addressId)
+      const address = addresses.value.find(addr => addr.id === addressId)
+      if (address) {
+        showDeleteConfirmModal.value = true
+        addressToDelete.value = address
+      }
+    }
+    
+    const confirmDeleteAddress = () => {
+      if (addressToDelete.value) {
+        const index = addresses.value.findIndex(addr => addr.id === addressToDelete.value.id)
         if (index > -1) {
           addresses.value.splice(index, 1)
           // 如果删除的是默认地址，设置第一个为默认
           if (addresses.value.length > 0 && !addresses.value.some(addr => addr.isDefault)) {
             addresses.value[0].isDefault = true
           }
+          showSuccess('Address deleted successfully')
         }
       }
+      closeDeleteConfirmModal()
+    }
+    
+    const closeDeleteConfirmModal = () => {
+      showDeleteConfirmModal.value = false
+      addressToDelete.value = null
     }
     
     const showCreateForm = () => {
@@ -226,6 +289,7 @@ export default {
               addr.isDefault = addr.id === editingAddress.value.id
             })
           }
+          showSuccess('Address updated successfully')
         }
       } else {
         // 创建新地址
@@ -245,6 +309,7 @@ export default {
         }
         
         addresses.value.push(newAddress)
+        showSuccess('Address created successfully')
       }
     }
     
@@ -254,7 +319,9 @@ export default {
         // 触发父组件事件，更新选中的地址
         // 这里可以emit事件给父组件
         console.log('Selected address:', defaultAddress)
-        alert(`Address changed to: ${defaultAddress.title}`)
+        showSuccess(`Address changed to: ${defaultAddress.title}`)
+      } else {
+        showError('Please select an address')
       }
       closeAddressModal()
     }
@@ -262,15 +329,19 @@ export default {
     return {
       showAddressModal,
       showAddressFormModal,
+      showDeleteConfirmModal,
       editingAddress,
+      addressToDelete,
       addresses,
       openAddressModal,
       closeAddressModal,
       closeAddressFormModal,
+      closeDeleteConfirmModal,
       closeAllModals,
       setDefaultAddress,
       editAddress,
       deleteAddress,
+      confirmDeleteAddress,
       showCreateForm,
       handleSaveAddress,
       confirmAddressChange
@@ -301,6 +372,12 @@ export default {
 .address-modal {
   max-width: 60%;
   width: 60%;
+  margin: 1.75rem auto;
+}
+
+.delete-confirm-modal {
+  max-width: 320px;
+  width: 320px;
   margin: 1.75rem auto;
 }
 
@@ -414,6 +491,32 @@ export default {
   font-size: 14px;
 }
 
+/* 删除确认对话框样式 */
+.delete-confirm-content {
+  text-align: center;
+  padding: 16px 0;
+}
+
+.delete-confirm-content p {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+}
+
+.delete-confirm-modal .modal-footer {
+  padding: 12px 20px 16px;
+  gap: 12px;
+}
+
+.delete-confirm-modal .modal-footer .btn {
+  flex: 1;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+}
+
 /* 背景遮罩样式 */
 .modal-backdrop {
   position: fixed;
@@ -466,7 +569,8 @@ export default {
 
 @media (max-width: 576px) {
   .address-modal,
-  .address-form-modal {
+  .address-form-modal,
+  .delete-confirm-modal {
     margin: 8px;
     max-width: calc(100% - 16px);
     width: calc(100% - 16px);

@@ -1,12 +1,34 @@
 <template>
   <div id="app">
     <router-view />
+    <!-- 全局消息提示组件 -->
+    <MessageToast 
+      :visible="messageState.visible"
+      :message="messageState.message"
+      :type="messageState.type"
+      :duration="messageState.duration"
+      @close="hideMessage"
+    />
   </div>
 </template>
 
 <script>
+import MessageToast from './components/common/MessageToast.vue'
+import { useMessage } from './composables/useMessage'
+
 export default {
-  name: 'App'
+  name: 'App',
+  components: {
+    MessageToast
+  },
+  setup() {
+    const { messageState, hideMessage } = useMessage()
+    
+    return {
+      messageState,
+      hideMessage
+    }
+  }
 }
 </script>
 
