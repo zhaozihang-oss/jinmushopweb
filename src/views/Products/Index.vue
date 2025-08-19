@@ -1,316 +1,1357 @@
 <template>
-  <div class="products-page">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <h2>Product Management</h2>
-      <button class="btn btn-primary" @click="showAddModal = true">
-        <i class="fas fa-plus me-2"></i>
-        Add Product
-      </button>
-    </div>
-    
-    <!-- 产品卡片网格 -->
-    <div class="row">
-      <div v-for="product in products" :key="product.id" class="col-lg-4 col-md-6 mb-4">
-        <div class="card product-card">
-          <div class="card-img-top product-image">
-            <i class="fas fa-box fa-3x"></i>
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">{{ product.name }}</h5>
-            <p class="card-text text-muted">{{ product.description }}</p>
-            <div class="product-info">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Price</span>
-                <span class="fw-bold text-primary">${{ product.price }}</span>
+  <div class="cart-container">
+    <!-- Web版本 -->
+    <div class="web-cart" v-if="!isMobile">
+      <!-- Header -->
+      <div class="cart-header">
+        <div class="location-info">
+          <i class="fas fa-map-marker-alt text-success me-2"></i>
+          <span>Self-pickup (Pakistan)</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline-success me-2">
+            Change of address
+          </button>
+          <button class="btn btn-success">
+            Order list
+          </button>
+        </div>
+      </div>
+
+      <div class="cart-content">
+        <!-- Left Section - Product List -->
+        <div class="product-section">
+          <div class="product-table">
+            <div class="table-header">
+              <div class="header-cell">Trade name</div>
+              <div class="header-cell">Unit Price</div>
+              <div class="header-cell">Promo Price</div>
+              <div class="header-cell">Quantity</div>
+              <div class="header-cell">Subtotal</div>
+            </div>
+            
+            <div 
+              v-for="product in products" 
+              :key="product.id" 
+              class="product-row"
+            >
+              <div class="product-info">
+                <div class="product-image">
+                  <img :src="product.image" :alt="product.name">
+                </div>
+                <div class="product-details">
+                  <h6 class="product-name">{{ product.name }}</h6>
+                </div>
               </div>
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted">Category</span>
-                <span class="badge bg-secondary">{{ product.category }}</span>
+              
+              <div class="price-cell">
+                <span class="unit-price">${{ formatPrice(product.unitPrice) }}</span>
               </div>
-              <div class="d-flex justify-content-between align-items-center mb-3">
-                <span class="text-muted">Stock</span>
-                <span :class="product.stock > 10 ? 'text-success' : 'text-danger'">
-                  {{ product.stock }}
+              
+              <div class="price-cell">
+                <span class="promo-price">${{ formatPrice(product.promoPrice) }}</span>
+              </div>
+              
+              <div class="quantity-cell">
+                <div class="quantity-controls">
+                  <button 
+                    class="qty-btn" 
+                    @click="decreaseQuantity(product.id)"
+                    :disabled="product.quantity <= 0"
+                  >
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <input 
+                    type="number" 
+                    class="qty-input" 
+                    v-model="product.quantity"
+                    min="0"
+                    @change="updateQuantity(product.id, $event.target.value)"
+                  >
+                  <button 
+                    class="qty-btn" 
+                    @click="increaseQuantity(product.id)"
+                  >
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="subtotal-cell">
+                <span class="subtotal">
+                  {{ product.quantity > 0 ? `$${formatPrice(product.promoPrice * product.quantity)}` : '--' }}
                 </span>
               </div>
             </div>
-            <div class="card-actions">
-              <button class="btn btn-outline-primary btn-sm" @click="editProduct(product)">
-                <i class="fas fa-edit me-1"></i>
-                Edit
-              </button>
-              <button class="btn btn-outline-danger btn-sm" @click="deleteProduct(product.id)">
-                <i class="fas fa-trash me-1"></i>
-                Delete
-              </button>
+          </div>
+          
+          <!-- Pagination -->
+          <Pagination 
+            :current-page="currentPage"
+            :total-pages="totalPages"
+            @page-change="handlePageChange"
+          />
+        </div>
+
+        <!-- Right Section - Order Summary -->
+        <div class="order-summary">
+          <div class="summary-card">
+            <!-- Discount Info -->
+            <div class="discount-section">
+              <div class="discount-info">
+                <span class="discount-amount">{{ memberDiscount }} Current discount</span>
+                <span class="member-level">{{ memberLevel }}</span>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="payment-section">
+              <h6 class="section-title">Method of payment:</h6>
+              <div class="payment-options">
+                <div class="payment-option">
+                  <input 
+                    type="radio" 
+                    id="balance" 
+                    name="payment" 
+                    value="balance"
+                    v-model="selectedPayment"
+                    class="payment-radio"
+                  >
+                  <label for="balance" class="payment-label">
+                    Balance-${{ formatPrice(balance) }}
+                  </label>
+                </div>
+                <div class="payment-option">
+                  <input 
+                    type="radio" 
+                    id="online" 
+                    name="payment" 
+                    value="online"
+                    v-model="selectedPayment"
+                    class="payment-radio"
+                  >
+                  <label for="online" class="payment-label">
+                    Online payment
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Order Totals -->
+            <div class="totals-section">
+              <div class="total-row">
+                <span class="total-label">Totally</span>
+                <span class="total-value">${{ formatPrice(totalAmount) }}</span>
+              </div>
+              <div class="total-row">
+                <span class="total-label">Promo Price</span>
+                <span class="total-value">${{ formatPrice(promoTotal) }}</span>
+              </div>
+              <div class="total-row final-total">
+                <span class="total-label">Actual payment</span>
+                <span class="total-value actual-payment">${{ formatPrice(actualPayment) }}</span>
+              </div>
+            </div>
+
+            <!-- Pay Button -->
+            <button class="pay-button" @click="handlePayment">
+              Pay Now
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile版本 -->
+    <div class="mobile-cart" v-else>
+      <!-- Header -->
+      <div class="cart-header">
+        <div class="location-info">
+          <i class="fas fa-map-marker-alt text-success me-2"></i>
+          <span>Self-pickup (Pakistan)</span>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline-success me-2">
+            Change of address
+          </button>
+          <button class="btn btn-success">
+            Order list
+          </button>
+        </div>
+      </div>
+
+      <!-- Product List -->
+      <div class="product-list">
+        <div 
+          v-for="product in products" 
+          :key="product.id" 
+          class="product-item"
+        >
+          <div class="product-image">
+            <img :src="product.image" :alt="product.name">
+          </div>
+          
+          <div class="product-details">
+            <h6 class="product-name">{{ product.name }}</h6>
+            
+            <div class="price-info">
+              <div class="price-row">
+                <span class="price-label">Unit Price:</span>
+                <span class="unit-price">${{ formatPrice(product.unitPrice) }}</span>
+              </div>
+              <div class="price-row">
+                <span class="price-label">Promo Price:</span>
+                <span class="promo-price">${{ formatPrice(product.promoPrice) }}</span>
+              </div>
+            </div>
+            
+            <div class="quantity-section">
+              <div class="price-display">
+                <span class="current-price">
+                  {{ product.quantity > 0 ? `$${formatPrice(product.promoPrice)}` : '$---' }}
+                </span>
+              </div>
+              
+              <div class="quantity-controls">
+                <button 
+                  class="qty-btn minus-btn" 
+                  @click="decreaseQuantity(product.id)"
+                  :disabled="product.quantity <= 0"
+                >
+                  <i class="fas fa-minus"></i>
+                </button>
+                <span class="qty-display">{{ product.quantity }}</span>
+                <button 
+                  class="qty-btn plus-btn" 
+                  @click="increaseQuantity(product.id)"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    
-    <!-- 添加/编辑产品模态框 -->
-    <div 
-      class="modal fade show" 
-      v-if="showAddModal || showEditModal"
-      style="display: block;"
-      tabindex="-1"
-    >
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">
-              {{ showAddModal ? 'Add Product' : 'Edit Product' }}
-            </h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
+
+      <!-- Pagination -->
+      <div class="pagination-section">
+        <Pagination 
+          :current-page="currentPage"
+          :total-pages="totalPages"
+          :is-mobile="true"
+          @page-change="handlePageChange"
+        />
+      </div>
+
+      <!-- Discount Info -->
+      <div class="discount-section">
+        <div class="discount-info">
+          <span class="discount-amount">{{ memberDiscount }} Current discount</span>
+          <span class="member-level">{{ memberLevel }}</span>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="payment-section">
+        <h6 class="section-title">Method of payment:</h6>
+        <div class="payment-options">
+          <div class="payment-option">
+            <input 
+              type="radio" 
+              id="balance-mobile" 
+              name="payment-mobile" 
+              value="balance"
+              v-model="selectedPayment"
+              class="payment-radio"
+            >
+            <label for="balance-mobile" class="payment-label">
+              Balance-${{ formatPrice(balance) }}
+            </label>
           </div>
-          <div class="modal-body">
-            <form @submit.prevent="saveProduct">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label">Product Name</label>
-                    <input 
-                      type="text" 
-                      class="form-control" 
-                      v-model="productForm.name"
-                      required
-                    >
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label">Category</label>
-                    <select class="form-select" v-model="productForm.category" required>
-                      <option value="">Select Category</option>
-                      <option value="electronics">Electronics</option>
-                      <option value="clothing">Clothing</option>
-                      <option value="books">Books</option>
-                      <option value="home">Home</option>
-                      <option value="sports">Sports</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label">Price</label>
-                    <input 
-                      type="number" 
-                      class="form-control" 
-                      v-model="productForm.price"
-                      step="0.01"
-                      min="0"
-                      required
-                    >
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="mb-3">
-                    <label class="form-label">Stock</label>
-                    <input 
-                      type="number" 
-                      class="form-control" 
-                      v-model="productForm.stock"
-                      min="0"
-                      required
-                    >
-                  </div>
-                </div>
-              </div>
-              <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea 
-                  class="form-control" 
-                  rows="3"
-                  v-model="productForm.description"
-                ></textarea>
-              </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal">
-              Cancel
-            </button>
-            <button type="button" class="btn btn-primary" @click="saveProduct">
-              Save
-            </button>
+          <div class="payment-option">
+            <input 
+              type="radio" 
+              id="online-mobile" 
+              name="payment-mobile" 
+              value="online"
+              v-model="selectedPayment"
+              class="payment-radio"
+            >
+            <label for="online-mobile" class="payment-label">
+              Online payment
+            </label>
           </div>
         </div>
       </div>
+
+      <!-- Order Summary -->
+      <div class="summary-section">
+        <div class="summary-row">
+          <span class="summary-label">Totally</span>
+          <span class="summary-value">${{ formatPrice(totalAmount) }}</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">Promo Price</span>
+          <span class="summary-value">${{ formatPrice(promoTotal) }}</span>
+        </div>
+        <div class="summary-row final-summary">
+          <span class="summary-label">Actual payment</span>
+          <span class="summary-value actual-payment">${{ formatPrice(actualPayment) }}</span>
+        </div>
+      </div>
+
+      <!-- Pay Button -->
+      <div class="pay-section">
+        <button class="pay-button" @click="handlePayment">
+          Pay Now
+        </button>
+      </div>
     </div>
-    
-    <!-- 模态框背景遮罩 -->
-    <div 
-      class="modal-backdrop fade show" 
-      v-if="showAddModal || showEditModal"
-      @click="closeModal"
-    ></div>
   </div>
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import Pagination from '@/components/Pagination.vue'
 
 export default {
-  name: 'Products',
+  name: 'Cart',
+  components: {
+    Pagination
+  },
   setup() {
-    const showAddModal = ref(false)
-    const showEditModal = ref(false)
-    const editingProductId = ref(null)
-    
-    // 产品表单
-    const productForm = reactive({
-      name: '',
-      category: '',
-      price: '',
-      stock: '',
-      description: ''
-    })
-    
+    const isMobile = ref(false)
+    const currentPage = ref(1)
+    const itemsPerPage = ref(10)
+    const selectedPayment = ref('balance')
+    const memberDiscount = ref('0.65')
+    const memberLevel = ref('Silver Diamond Member')
+    const balance = ref(4.00)
+
     // 模拟产品数据
-    const products = ref([
+    const allProducts = ref([
       {
         id: 1,
-        name: 'Wireless Headphones',
-        category: 'Electronics',
-        price: 199.99,
-        stock: 50,
-        description: 'High-quality wireless Bluetooth headphones with noise cancellation'
+        name: 'Rose Hyaluronic Acid Skin Care Pack',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 99999.00,
+        promoPrice: 64999.00,
+        quantity: 0
       },
       {
         id: 2,
-        name: 'Smart Watch',
-        category: 'Electronics',
-        price: 299.99,
-        stock: 30,
-        description: 'Advanced fitness tracking and notification smart watch'
+        name: 'SOOTHINGANDREVITALIZNGIPLAT INUMESSENCE LOTION',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 10.00,
+        promoPrice: 6.50,
+        quantity: 0
       },
       {
         id: 3,
-        name: 'Premium T-Shirt',
-        category: 'Clothing',
-        price: 29.99,
-        stock: 100,
-        description: 'Comfortable cotton t-shirt with modern design'
+        name: 'Rose Hyaluronic Acid Skin Care Pack',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 10.00,
+        promoPrice: 6.50,
+        quantity: 0
       },
       {
         id: 4,
-        name: 'Business Laptop',
-        category: 'Electronics',
-        price: 1299.99,
-        stock: 15,
-        description: 'Professional laptop for business and productivity'
+        name: 'Rose Hyaluronic Acid Skin Care Pack',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 10.00,
+        promoPrice: 6.50,
+        quantity: 0
       },
       {
         id: 5,
-        name: 'Running Shoes',
-        category: 'Sports',
-        price: 89.99,
-        stock: 75,
-        description: 'Lightweight running shoes for daily training'
+        name: 'Rose Hyaluronic Acid Skin Care Pack',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 10.00,
+        promoPrice: 6.50,
+        quantity: 0
       },
       {
         id: 6,
-        name: 'Coffee Maker',
-        category: 'Home',
-        price: 149.99,
-        stock: 25,
-        description: 'Automatic coffee maker with programmable settings'
+        name: 'Rose Hyaluronic Acid Skin Care Pack',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 10.00,
+        promoPrice: 6.50,
+        quantity: 0
+      },
+      {
+        id: 7,
+        name: 'Vitamin C Brightening Serum',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 89.99,
+        promoPrice: 58.49,
+        quantity: 0
+      },
+      {
+        id: 8,
+        name: 'Anti-Aging Collagen Cream',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 129.99,
+        promoPrice: 84.49,
+        quantity: 0
+      },
+      {
+        id: 9,
+        name: 'Hydrating Facial Mask Set (5pcs)',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 45.99,
+        promoPrice: 29.89,
+        quantity: 0
+      },
+      {
+        id: 10,
+        name: 'Niacinamide Pore Minimizer',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 39.99,
+        promoPrice: 25.99,
+        quantity: 0
+      },
+      {
+        id: 11,
+        name: 'Retinol Night Recovery Cream',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 149.99,
+        promoPrice: 97.49,
+        quantity: 0
+      },
+      {
+        id: 12,
+        name: 'Green Tea Cleansing Foam',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 24.99,
+        promoPrice: 16.24,
+        quantity: 0
+      },
+      {
+        id: 13,
+        name: 'Peptide Eye Cream',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 79.99,
+        promoPrice: 51.99,
+        quantity: 0
+      },
+      {
+        id: 14,
+        name: 'Ceramide Moisturizing Lotion',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 34.99,
+        promoPrice: 22.74,
+        quantity: 0
+      },
+      {
+        id: 15,
+        name: 'Salicylic Acid Exfoliating Toner',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 29.99,
+        promoPrice: 19.49,
+        quantity: 0
+      },
+      {
+        id: 16,
+        name: 'Sunscreen SPF 50+ PA+++',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 19.99,
+        promoPrice: 12.99,
+        quantity: 0
+      },
+      {
+        id: 17,
+        name: 'Argan Oil Hair Treatment',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 54.99,
+        promoPrice: 35.74,
+        quantity: 0
+      },
+      {
+        id: 18,
+        name: 'Biotin Hair Growth Supplement',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 39.99,
+        promoPrice: 25.99,
+        quantity: 0
+      },
+      {
+        id: 19,
+        name: 'Coconut Oil Body Moisturizer',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 27.99,
+        promoPrice: 18.19,
+        quantity: 0
+      },
+      {
+        id: 20,
+        name: 'Lavender Essential Oil Set',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 49.99,
+        promoPrice: 32.49,
+        quantity: 0
+      },
+      {
+        id: 21,
+        name: 'Charcoal Detox Face Mask',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 15.99,
+        promoPrice: 10.39,
+        quantity: 0
+      },
+      {
+        id: 22,
+        name: 'Aloe Vera Soothing Gel',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 12.99,
+        promoPrice: 8.44,
+        quantity: 0
+      },
+      {
+        id: 23,
+        name: 'Jojoba Oil Facial Cleanser',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 31.99,
+        promoPrice: 20.79,
+        quantity: 0
+      },
+      {
+        id: 24,
+        name: 'Shea Butter Hand Cream',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 18.99,
+        promoPrice: 12.34,
+        quantity: 0
+      },
+      {
+        id: 25,
+        name: 'Tea Tree Oil Spot Treatment',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 22.99,
+        promoPrice: 14.94,
+        quantity: 0
+      },
+      {
+        id: 26,
+        name: 'Rosehip Oil Anti-Aging Serum',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 67.99,
+        promoPrice: 44.19,
+        quantity: 0
+      },
+      {
+        id: 27,
+        name: 'Bamboo Charcoal Toothbrush Set',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 9.99,
+        promoPrice: 6.49,
+        quantity: 0
+      },
+      {
+        id: 28,
+        name: 'Organic Lip Balm Trio',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 16.99,
+        promoPrice: 11.04,
+        quantity: 0
+      },
+      {
+        id: 29,
+        name: 'Himalayan Salt Body Scrub',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 25.99,
+        promoPrice: 16.89,
+        quantity: 0
+      },
+      {
+        id: 30,
+        name: 'Ginseng Energy Face Serum',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 89.99,
+        promoPrice: 58.49,
+        quantity: 0
+      },
+      {
+        id: 31,
+        name: 'Cucumber Hydrating Mist',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 19.99,
+        promoPrice: 12.99,
+        quantity: 0
+      },
+      {
+        id: 32,
+        name: 'Moringa Oil Hair Mask',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 43.99,
+        promoPrice: 28.59,
+        quantity: 0
+      },
+      {
+        id: 33,
+        name: 'Turmeric Brightening Face Pack',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 21.99,
+        promoPrice: 14.29,
+        quantity: 0
+      },
+      {
+        id: 34,
+        name: 'Vitamin E Night Repair Cream',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 56.99,
+        promoPrice: 37.04,
+        quantity: 0
+      },
+      {
+        id: 35,
+        name: 'Dead Sea Mineral Mud Mask',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 33.99,
+        promoPrice: 22.09,
+        quantity: 0
+      },
+      {
+        id: 36,
+        name: 'Chamomile Calming Toner',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 28.99,
+        promoPrice: 18.84,
+        quantity: 0
+      },
+      {
+        id: 37,
+        name: 'Honey Oat Exfoliating Scrub',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 24.99,
+        promoPrice: 16.24,
+        quantity: 0
+      },
+      {
+        id: 38,
+        name: 'Arnica Healing Balm',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 17.99,
+        promoPrice: 11.69,
+        quantity: 0
+      },
+      {
+        id: 39,
+        name: 'Grape Seed Antioxidant Serum',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 72.99,
+        promoPrice: 47.44,
+        quantity: 0
+      },
+      {
+        id: 40,
+        name: 'Eucalyptus Body Wash',
+        image: '/src/assets/img/shangpin.png',
+        unitPrice: 13.99,
+        promoPrice: 9.09,
+        quantity: 0
       }
     ])
-    
-    // 重置表单
-    const resetForm = () => {
-      productForm.name = ''
-      productForm.category = ''
-      productForm.price = ''
-      productForm.stock = ''
-      productForm.description = ''
+
+    // 计算属性 - 分页相关
+    const totalPages = computed(() => {
+      return Math.ceil(allProducts.value.length / itemsPerPage.value)
+    })
+
+    const products = computed(() => {
+      const start = (currentPage.value - 1) * itemsPerPage.value
+      const end = start + itemsPerPage.value
+      return allProducts.value.slice(start, end)
+    })
+
+    // 计算属性 - 价格相关
+    const totalAmount = computed(() => {
+      return allProducts.value.reduce((sum, product) => {
+        return sum + (product.unitPrice * product.quantity)
+      }, 0)
+    })
+
+    const promoTotal = computed(() => {
+      return allProducts.value.reduce((sum, product) => {
+        return sum + (product.promoPrice * product.quantity)
+      }, 0)
+    })
+
+    const actualPayment = computed(() => {
+      return promoTotal.value
+    })
+
+    // 方法
+    const formatPrice = (price) => {
+      return price.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
     }
-    
-    // 关闭模态框
-    const closeModal = () => {
-      showAddModal.value = false
-      showEditModal.value = false
-      editingProductId.value = null
-      resetForm()
-    }
-    
-    // 编辑产品
-    const editProduct = (product) => {
-      editingProductId.value = product.id
-      productForm.name = product.name
-      productForm.category = product.category
-      productForm.price = product.price
-      productForm.stock = product.stock
-      productForm.description = product.description
-      showEditModal.value = true
-    }
-    
-    // 保存产品
-    const saveProduct = () => {
-      if (showAddModal.value) {
-        // 添加新产品
-        const newProduct = {
-          id: Date.now(),
-          name: productForm.name,
-          category: productForm.category,
-          price: parseFloat(productForm.price),
-          stock: parseInt(productForm.stock),
-          description: productForm.description
-        }
-        products.value.push(newProduct)
-        alert('Product added successfully!')
-      } else if (showEditModal.value) {
-        // 编辑现有产品
-        const index = products.value.findIndex(p => p.id === editingProductId.value)
-        if (index !== -1) {
-          products.value[index] = {
-            id: editingProductId.value,
-            name: productForm.name,
-            category: productForm.category,
-            price: parseFloat(productForm.price),
-            stock: parseInt(productForm.stock),
-            description: productForm.description
-          }
-          alert('Product updated successfully!')
-        }
-      }
-      closeModal()
-    }
-    
-    // 删除产品
-    const deleteProduct = (id) => {
-      if (confirm('Are you sure you want to delete this product?')) {
-        const index = products.value.findIndex(p => p.id === id)
-        if (index !== -1) {
-          products.value.splice(index, 1)
-          alert('Product deleted successfully!')
-        }
+
+    const increaseQuantity = (productId) => {
+      const product = allProducts.value.find(p => p.id === productId)
+      if (product) {
+        product.quantity++
       }
     }
-    
+
+    const decreaseQuantity = (productId) => {
+      const product = allProducts.value.find(p => p.id === productId)
+      if (product && product.quantity > 0) {
+        product.quantity--
+      }
+    }
+
+    const updateQuantity = (productId, value) => {
+      const product = allProducts.value.find(p => p.id === productId)
+      if (product) {
+        product.quantity = Math.max(0, parseInt(value) || 0)
+      }
+    }
+
+    const handlePageChange = (page) => {
+      currentPage.value = page
+      // 滚动到顶部以便用户看到新页面的内容
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+
+    const handlePayment = () => {
+      if (actualPayment.value > 0) {
+        alert(`Processing payment of $${formatPrice(actualPayment.value)}`)
+      } else {
+        alert('Please add items to cart before payment')
+      }
+    }
+
+    const checkDeviceType = () => {
+      const userAgent = navigator.userAgent.toLowerCase()
+      const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent)
+      const isSmallScreen = window.innerWidth <= 768
+      
+      isMobile.value = isMobileDevice || isSmallScreen
+    }
+
+    onMounted(() => {
+      checkDeviceType()
+      window.addEventListener('resize', checkDeviceType)
+    })
+
     return {
+      isMobile,
+      currentPage,
+      totalPages,
+      selectedPayment,
+      memberDiscount,
+      memberLevel,
+      balance,
       products,
-      showAddModal,
-      showEditModal,
-      productForm,
-      editProduct,
-      saveProduct,
-      deleteProduct,
-      closeModal
+      totalAmount,
+      promoTotal,
+      actualPayment,
+      formatPrice,
+      increaseQuantity,
+      decreaseQuantity,
+      updateQuantity,
+      handlePageChange,
+      handlePayment
     }
   }
 }
 </script>
 
 <style scoped>
-.products-page {
+.cart-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+/* Web版本样式 */
+.web-cart {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
   animation: fadeIn 0.3s ease-in-out;
 }
 
+.web-cart .cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.web-cart .location-info {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+}
+
+.web-cart .header-actions .btn {
+  font-size: 14px;
+  padding: 8px 16px;
+}
+
+.web-cart .cart-content {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 20px;
+}
+
+.web-cart .product-section {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.web-cart .product-table {
+  margin-bottom: 20px;
+}
+
+.web-cart .table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 15px;
+  padding: 15px 0;
+  border-bottom: 2px solid #e9ecef;
+  font-weight: 600;
+  color: #495057;
+}
+
+.web-cart .header-cell {
+  text-align: center;
+}
+
+.web-cart .product-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 15px;
+  padding: 20px 0;
+  border-bottom: 1px solid #f1f3f4;
+  align-items: center;
+}
+
+.web-cart .product-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.web-cart .product-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.web-cart .product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.web-cart .product-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.web-cart .price-cell {
+  text-align: center;
+}
+
+.web-cart .unit-price {
+  color: #6c757d;
+  text-decoration: line-through;
+  font-size: 14px;
+}
+
+.web-cart .promo-price {
+  color: #dc3545;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.web-cart .quantity-cell {
+  display: flex;
+  justify-content: center;
+}
+
+.web-cart .quantity-controls {
+  display: flex;
+  align-items: center;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.web-cart .qty-btn {
+  border: none;
+  background: #f8f9fa;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.web-cart .qty-btn:hover:not(:disabled) {
+  background: #e9ecef;
+}
+
+.web-cart .qty-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.web-cart .qty-input {
+  border: none;
+  text-align: center;
+  width: 50px;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.web-cart .qty-input:focus {
+  outline: none;
+}
+
+.web-cart .subtotal-cell {
+  text-align: center;
+}
+
+.web-cart .subtotal {
+  font-weight: 600;
+  color: #28a745;
+  font-size: 16px;
+}
+
+.web-cart .order-summary {
+  position: sticky;
+  top: 20px;
+}
+
+.web-cart .summary-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.web-cart .discount-section {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.web-cart .discount-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.web-cart .discount-amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #28a745;
+}
+
+.web-cart .member-level {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.web-cart .payment-section {
+  margin-bottom: 20px;
+}
+
+.web-cart .section-title {
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #495057;
+}
+
+.web-cart .payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.web-cart .payment-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.web-cart .payment-radio {
+  width: 18px;
+  height: 18px;
+  accent-color: #28a745;
+}
+
+.web-cart .payment-label {
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.web-cart .totals-section {
+  margin-bottom: 20px;
+  padding-top: 15px;
+  border-top: 1px solid #e9ecef;
+}
+
+.web-cart .total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.web-cart .total-label {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.web-cart .total-value {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.web-cart .final-total {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e9ecef;
+}
+
+.web-cart .actual-payment {
+  color: #fd7e14;
+  font-size: 18px;
+}
+
+.web-cart .pay-button {
+  width: 100%;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.web-cart .pay-button:hover {
+  background: #218838;
+}
+
+/* Mobile版本样式 */
+.mobile-cart {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  padding-bottom: 100px;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.mobile-cart .cart-header {
+  background: white;
+  padding: 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.mobile-cart .location-info {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.mobile-cart .header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.mobile-cart .header-actions .btn {
+  flex: 1;
+  font-size: 14px;
+  padding: 10px;
+}
+
+.mobile-cart .product-list {
+  padding: 15px;
+}
+
+.mobile-cart .product-item {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  gap: 15px;
+}
+
+.mobile-cart .product-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8f9fa;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-cart .product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.mobile-cart .product-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mobile-cart .product-name {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.4;
+  color: #333;
+}
+
+.mobile-cart .price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mobile-cart .price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mobile-cart .price-label {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.mobile-cart .unit-price {
+  font-size: 12px;
+  color: #6c757d;
+  text-decoration: line-through;
+}
+
+.mobile-cart .promo-price {
+  font-size: 14px;
+  color: #dc3545;
+  font-weight: 600;
+}
+
+.mobile-cart .quantity-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.mobile-cart .price-display {
+  flex: 1;
+}
+
+.mobile-cart .current-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fd7e14;
+}
+
+.mobile-cart .quantity-controls {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 20px;
+  padding: 4px;
+  gap: 15px;
+}
+
+.mobile-cart .qty-btn {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: white;
+  color: #28a745;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+
+.mobile-cart .qty-btn:hover:not(:disabled) {
+  background: #28a745;
+  color: white;
+}
+
+.mobile-cart .qty-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-cart .qty-display {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  min-width: 20px;
+  text-align: center;
+}
+
+.mobile-cart .pagination-section {
+  padding: 20px 15px;
+  background: white;
+  margin: 15px 0;
+}
+
+.mobile-cart .discount-section {
+  background: white;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.mobile-cart .discount-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mobile-cart .discount-amount {
+  font-size: 16px;
+  font-weight: 600;
+  color: #28a745;
+}
+
+.mobile-cart .member-level {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.mobile-cart .payment-section {
+  background: white;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.mobile-cart .section-title {
+  font-weight: 600;
+  margin-bottom: 15px;
+  color: #495057;
+  font-size: 16px;
+}
+
+.mobile-cart .payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mobile-cart .payment-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-cart .payment-radio {
+  width: 20px;
+  height: 20px;
+  accent-color: #28a745;
+}
+
+.mobile-cart .payment-label {
+  font-size: 16px;
+  cursor: pointer;
+  color: #333;
+}
+
+.mobile-cart .summary-section {
+  background: white;
+  padding: 15px;
+  margin: 15px 0;
+}
+
+.mobile-cart .summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mobile-cart .summary-label {
+  font-size: 16px;
+  color: #6c757d;
+}
+
+.mobile-cart .summary-value {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+}
+
+.mobile-cart .final-summary {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #e9ecef;
+}
+
+.mobile-cart .actual-payment {
+  color: #fd7e14;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.mobile-cart .pay-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 15px;
+  border-top: 1px solid #e9ecef;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+}
+
+.mobile-cart .pay-button {
+  width: 100%;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.mobile-cart .pay-button:hover {
+  background: #218838;
+}
+
+/* 动画效果 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -322,72 +1363,150 @@ export default {
   }
 }
 
-.product-card {
-  border: none;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  transition: all 0.3s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.product-image {
-  height: 200px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  border-radius: 12px 12px 0 0;
-}
-
-.product-info {
-  border-top: 1px solid #eee;
-  padding-top: 15px;
-}
-
-.modal-content {
-  border-radius: 12px;
-  border: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+/* 响应式设计 - 参考Dashboard的媒体查询 */
+@media (max-width: 992px) {
+  .web-cart .cart-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .web-cart .order-summary {
+    position: static;
+  }
 }
 
 @media (max-width: 768px) {
-  .col-lg-4 {
-    width: 100%;
-    max-width: 100%;
+  .web-cart .cart-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
   }
   
-  .product-card {
-    margin-bottom: 20px;
-    width: 100%;
-    max-width: 100%;
+  .web-cart .header-actions {
+    display: flex;
+    gap: 10px;
   }
   
-  .product-image {
-    height: 150px;
+  .web-cart .table-header,
+  .web-cart .product-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
   
-  .card-body {
-    padding: 15px;
+  .web-cart .header-cell {
+    display: none;
+  }
+  
+  .web-cart .product-info {
+    justify-content: center;
+  }
+  
+  .web-cart .price-cell,
+  .web-cart .quantity-cell,
+  .web-cart .subtotal-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .mobile-cart .product-item {
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .mobile-cart .product-image {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .mobile-cart .product-name {
+    font-size: 13px;
+  }
+  
+  .mobile-cart .current-price {
+    font-size: 16px;
+  }
+  
+  .mobile-cart .qty-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+  
+  .mobile-cart .qty-display {
+    font-size: 14px;
+  }
+  
+  .mobile-cart .header-actions .btn {
+    font-size: 13px;
+    padding: 8px;
   }
 }
 
 @media (max-width: 576px) {
-  .product-image {
-    height: 120px;
+  .web-cart {
+    padding: 15px;
   }
   
-  .card-body {
-    padding: 12px;
+  .mobile-cart .product-item {
+    padding: 10px;
+    gap: 10px;
   }
   
-  .btn {
-    font-size: 0.85rem;
-    padding: 8px 12px;
+  .mobile-cart .product-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .mobile-cart .product-name {
+    font-size: 12px;
+  }
+  
+  .mobile-cart .current-price {
+    font-size: 14px;
+  }
+  
+  .mobile-cart .qty-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+  
+  .mobile-cart .qty-display {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 375px) {
+  .web-cart {
+    padding: 10px;
+  }
+  
+  .mobile-cart .product-item {
+    padding: 8px;
+    gap: 8px;
+  }
+  
+  .mobile-cart .product-image {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .mobile-cart .product-name {
+    font-size: 11px;
+  }
+  
+  .mobile-cart .current-price {
+    font-size: 13px;
+  }
+  
+  .mobile-cart .qty-btn {
+    width: 22px;
+    height: 22px;
+    font-size: 9px;
+  }
+  
+  .mobile-cart .qty-display {
+    font-size: 11px;
   }
 }
 </style> 

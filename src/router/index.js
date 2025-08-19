@@ -103,6 +103,12 @@ const routes = [
         name: 'ChangePassword',
         component: () => import('@/views/ChangePassword/Index.vue'),
         meta: { title: 'change-password' }
+      },
+      {
+        path: 'cart',
+        name: 'Cart',
+        component: () => import('@/views/Cart/Index.vue'),
+        meta: { title: 'cart' }
       }
     ]
   },

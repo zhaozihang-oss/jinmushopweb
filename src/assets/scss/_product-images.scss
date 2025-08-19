@@ -1,0 +1,49 @@
+// 产品图片占位符样式
+.product-image {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image::after {
+  content: '📦';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 20px;
+  z-index: 1;
+}
+
+// 当有实际图片时隐藏占位符
+.product-image img {
+  position: relative;
+  z-index: 2;
+}
+
+.product-image img[src*="product"] {
+  background: none;
+}
+
+.product-image img[src*="product"]::before,
+.product-image img[src*="product"]::after {
+  display: none;
+} 
