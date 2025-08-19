@@ -3,10 +3,8 @@
     <!-- 品牌区域 -->
     <div class="brand-section">
       <div class="logo-container">
-        <div class="logo-placeholder">
-          <!-- 图片占位符，后续插入logo -->
-        </div>
-        <h1 class="brand-name">JIMON GROUP</h1>
+       <img src="@/assets/img/logo.png" alt="">
+        <!-- <h1 class="brand-name">JIMON GROUP</h1> -->
       </div>
     </div>
 
@@ -14,9 +12,7 @@
     <div class="login-panel">
       <!-- 左侧抽象设计区域 (PC端显示) -->
       <div class="design-section">
-        <div class="abstract-design-placeholder">
-          <!-- 图片占位符，后续插入抽象设计 -->
-        </div>
+        <img src="@/assets/img/login.png" alt="" style="width: 100%; height: 100%; object-fit: cover; display: block;">
       </div>
 
       <!-- 右侧登录表单区域 -->
@@ -60,6 +56,39 @@
               </div>
             </div>
 
+            <!-- 滑动验证 -->
+            <div class="form-group">
+              <label class="form-label">Verification</label>
+              <div class="slider-verify-container">
+                <div 
+                  class="slider-verify" 
+                  :class="{ 'verified': isVerified }"
+                  @mousedown="startDrag"
+                  @touchstart="startDrag"
+                >
+                  <div class="slider-track">
+                    <div class="slider-text">
+                      <i class="fas fa-arrows-alt-h"></i>
+                      Hold down the slider and drag to the far right
+                    </div>
+                  </div>
+                  <div 
+                    class="slider-button"
+                    :style="{ left: sliderPosition + '%' }"
+                    @mousedown.stop="startDrag"
+                    @touchstart.stop="startDrag"
+                  >
+                    <i class="fas fa-chevron-right"></i>
+                  </div>
+                </div>
+                <!-- 验证成功消息 -->
+                <div v-if="verificationMessage" class="verification-message">
+                  <i class="fas fa-check-circle"></i>
+                  {{ verificationMessage }}
+                </div>
+              </div>
+            </div>
+
             <!-- 选项和链接 -->
             <div class="form-options">
               <label class="checkbox-container">
@@ -92,6 +121,11 @@ export default {
   name: 'LoginIndex',
   setup() {
     const showPassword = ref(false)
+    const isVerified = ref(false)
+    const sliderPosition = ref(0)
+    const isDragging = ref(false)
+    const verificationMessage = ref('')
+    
     const formData = reactive({
       memberId: '',
       password: '',
@@ -102,7 +136,77 @@ export default {
       showPassword.value = !showPassword.value
     }
 
+    const startDrag = (event) => {
+      console.log('event')
+      isDragging.value = true
+      document.addEventListener('mousemove', handleDrag)
+      document.addEventListener('mouseup', stopDrag)
+      document.addEventListener('touchmove', handleDrag)
+      document.addEventListener('touchend', stopDrag)
+    }
+
+    const handleDrag = (event) => {
+      if (!isDragging.value) return
+      
+      const slider = event.target.closest('.slider-verify') || document.querySelector('.slider-verify')
+      if (!slider) return
+      
+      const rect = slider.getBoundingClientRect()
+      const clientX = event.clientX || (event.touches && event.touches[0].clientX)
+      const position = Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))
+      
+      sliderPosition.value = position
+      
+      if (position >= 95) {
+        isVerified.value = true
+        stopDrag()
+        // 验证成功回调
+        onVerificationSuccess()
+      }
+    }
+
+    const stopDrag = () => {
+      isDragging.value = false
+      if (!isVerified.value) {
+        sliderPosition.value = 0
+      }
+      document.removeEventListener('mousemove', handleDrag)
+      document.removeEventListener('mouseup', stopDrag)
+      document.removeEventListener('touchmove', handleDrag)
+      document.removeEventListener('touchend', stopDrag)
+    }
+
+    // 验证成功回调函数
+    const onVerificationSuccess = () => {
+      console.log('滑动验证成功！')
+      
+      // 显示成功消息
+      verificationMessage.value = '验证成功！'
+      
+      // 3秒后清除消息
+      setTimeout(() => {
+        verificationMessage.value = ''
+      }, 3000)
+      
+      // 这里可以添加更多验证成功后的逻辑
+      // 例如：
+      // - 发送验证成功事件到父组件
+      // - 更新全局状态
+      // - 记录验证日志
+      // - 启用其他表单元素
+      
+      // 示例：触发父组件事件
+      // emit('verification-success', { 
+      //   timestamp: Date.now(),
+      //   userId: formData.memberId 
+      // })
+    }
+
     const handleLogin = () => {
+      if (!isVerified.value) {
+        alert('Please complete the verification first')
+        return
+      }
       // 处理登录逻辑
       console.log('Login attempt:', formData)
       // 这里可以添加实际的登录API调用
@@ -110,9 +214,14 @@ export default {
 
     return {
       showPassword,
+      isVerified,
+      sliderPosition,
+      verificationMessage,
       formData,
       togglePassword,
-      handleLogin
+      startDrag,
+      handleLogin,
+      onVerificationSuccess
     }
   }
 }
@@ -144,6 +253,11 @@ export default {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.logo-container img {
+  height: 40px;
+  width: auto;
 }
 
 .logo-placeholder {
@@ -181,14 +295,15 @@ export default {
 }
 
 /* 主登录面板 */
-.login-panel {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  margin-top: 80px;
-}
+  .login-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    margin-top: 80px;
+    min-height: 600px;
+  }
 
 /* 移动端样式 */
 @media (max-width: 768px) {
@@ -273,6 +388,15 @@ export default {
   .login-button:hover {
     background: #28a745;
   }
+
+  .slider-verify {
+    height: 48px;
+  }
+
+  .slider-button {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 /* PC端样式 */
@@ -292,6 +416,7 @@ export default {
     justify-content: center;
     position: relative;
     overflow: hidden;
+    height: calc(100% - 80px);
   }
 
   .abstract-design-placeholder {
@@ -323,6 +448,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 100%;
   }
 
   .form-container {
@@ -486,6 +612,115 @@ export default {
 
 .login-button:active {
   transform: translateY(1px);
+}
+
+/* 滑动验证样式 */
+.slider-verify-container {
+  width: 100%;
+}
+
+.slider-verify {
+  position: relative;
+  width: 100%;
+  height: 44px;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.slider-verify.verified {
+  background: #e8f5e8;
+  border-color: #32cd32;
+}
+
+.slider-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slider-text {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.slider-text i {
+  font-size: 12px;
+}
+
+.slider-button {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 40px;
+  height: 40px;
+  background: #1a5f7a;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: grab;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+.slider-button:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+.slider-button i {
+  font-size: 14px;
+}
+
+.slider-verify.verified .slider-button {
+  background: #32cd32;
+}
+
+.slider-verify.verified .slider-text {
+  color: #32cd32;
+  font-weight: 500;
+}
+
+.verification-message {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: #e8f5e8;
+  border: 1px solid #32cd32;
+  border-radius: 6px;
+  color: #32cd32;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: fadeIn 0.3s ease;
+}
+
+.verification-message i {
+  font-size: 16px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* 响应式调整 */
