@@ -98,28 +98,8 @@
       </div>
     </div>
     
-    <!-- 社交媒体链接 -->
-    <div class="row mb-4">
-      <div class="col-12">
-        <div class="social-links-card">
-          <h5 class="mb-3">Connect with us</h5>
-          <div class="social-buttons">
-            <a href="#" class="social-btn twitter">
-              <i class="fab fa-twitter"></i>
-              <span>Twitter</span>
-            </a>
-            <a href="#" class="social-btn wechat">
-              <i class="fab fa-weixin"></i>
-              <span>WeChat</span>
-            </a>
-            <a href="#" class="social-btn facebook">
-              <i class="fab fa-facebook"></i>
-              <span>Facebook</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- 悬浮社交媒体按钮 -->
+    <FloatingSocialButtons @social-click="handleSocialClick" />
   </div>
 </template>
 
@@ -127,12 +107,14 @@
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue'
 import DataCard from '@/components/DataCard.vue'
 import BonusCard from '@/components/BonusCard.vue'
+import FloatingSocialButtons from '@/components/FloatingSocialButtons.vue'
 
 export default {
   name: 'Dashboard',
   components: {
     DataCard,
-    BonusCard
+    BonusCard,
+    FloatingSocialButtons
   },
   setup() {
     const currentTime = ref('')
@@ -217,6 +199,11 @@ export default {
       }).format(time)
     }
     
+    // 处理社交媒体点击
+    const handleSocialClick = (social) => {
+      console.log(`Clicked on ${social.name}:`, social)
+      // 这里可以添加具体的处理逻辑，比如打开分享弹窗等
+    }
 
     
     onMounted(() => {
@@ -236,7 +223,8 @@ export default {
       bonusData,
       formatCurrency,
       formatDate,
-      formatTime
+      formatTime,
+      handleSocialClick
     }
   }
 }
@@ -261,76 +249,7 @@ export default {
   }
 }
 
-/* 社交媒体链接卡片 */
-.social-links-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 25px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  border: 1px solid #f0f0f0;
-  text-align: center;
-}
 
-.social-links-card h5 {
-  color: #333;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-
-.social-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-
-.social-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 12px 20px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  color: #fff;
-  min-width: 120px;
-  justify-content: center;
-}
-
-.social-btn i {
-  margin-right: 8px;
-  font-size: 18px;
-}
-
-.social-btn.twitter {
-  background: #1da1f2;
-}
-
-.social-btn.twitter:hover {
-  background: #0d8bd9;
-  transform: translateY(-2px);
-  color: #fff;
-}
-
-.social-btn.wechat {
-  background: #07c160;
-}
-
-.social-btn.wechat:hover {
-  background: #06ad56;
-  transform: translateY(-2px);
-  color: #fff;
-}
-
-.social-btn.facebook {
-  background: #4267b2;
-}
-
-.social-btn.facebook:hover {
-  background: #365899;
-  transform: translateY(-2px);
-  color: #fff;
-}
 
 /* 响应式设计 */
 @media (max-width: 768px) {
@@ -343,15 +262,6 @@ export default {
     padding-left: 10px;
     padding-right: 10px;
   }
-  
-  .social-buttons {
-    gap: 15px;
-  }
-  
-  .social-btn {
-    min-width: 100px;
-    padding: 10px 16px;
-  }
 }
 
 @media (max-width: 576px) {
@@ -363,41 +273,12 @@ export default {
   .mb-4 {
     margin-bottom: 1rem !important;
   }
-  
-  .social-buttons {
-    flex-direction: column;
-    gap: 12px;
-    align-items: center;
-  }
-  
-  .social-btn {
-    width: 100%;
-    max-width: 200px;
-  }
-  
-  .social-links-card {
-    padding: 20px;
-  }
 }
 
 @media (max-width: 375px) {
   .col-lg-3, .col-md-6 {
     padding-left: 3px;
     padding-right: 3px;
-  }
-  
-  .social-links-card {
-    padding: 15px;
-  }
-  
-  .social-btn {
-    padding: 8px 12px;
-    font-size: 14px;
-  }
-  
-  .social-btn i {
-    font-size: 16px;
-    margin-right: 6px;
   }
 }
 </style> 

@@ -2,10 +2,19 @@
   <div class="layout-container">
     <!-- 侧边栏 -->
     <div class="sidebar" :class="{ 'show': showSidebar, 'collapsed': sidebarCollapsed }">
-      <div class="sidebar-header">
-        <div class="brand-logo">
-          <i class="fas fa-crown brand-icon"></i>
-          <span v-if="!sidebarCollapsed" class="brand-text">Jinmu Admin</span>
+      <!-- 用户信息区域 -->
+      <div class="user-profile-section">
+        <div class="user-avatar-container">
+          <!-- 头像占位，后续插入图片 -->
+          <div class="user-avatar-placeholder">
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+        <div v-if="!sidebarCollapsed" class="user-info">
+          <div class="user-id">{{ currentUser.memberId }}</div>
+          <div class="user-rating">
+            <i v-for="n in 5" :key="n" class="fas fa-star"></i>
+          </div>
         </div>
       </div>
       
@@ -16,14 +25,19 @@
             :key="item.name"
             :to="item.path" 
             class="nav-item"
-            :class="{ 'active': $route.path === item.path }"
-            @click="closeSidebar"
+            :class="{ 
+              'active': $route.path === item.path,
+              'has-submenu': item.hasSubmenu 
+            }"
+            @click="handleNavClick(item)"
           >
             <div class="nav-icon">
               <i :class="item.icon"></i>
             </div>
             <span v-if="!sidebarCollapsed" class="nav-text">{{ item.label }}</span>
-            <div v-if="$route.path === item.path" class="nav-indicator"></div>
+            <div v-if="item.hasSubmenu && !sidebarCollapsed" class="submenu-arrow">
+              <i class="fas fa-chevron-down" :class="{ 'rotated': item.expanded }"></i>
+            </div>
           </router-link>
         </div>
       </nav>
@@ -41,42 +55,10 @@
             >
               <i class="fas fa-bars"></i>
             </button>
-            
-            <!-- <div class="page-title">
-              <h5>{{ getCurrentPageTitle() }}</h5>
-            </div> -->
           </div>
           
           <div class="navbar-right">
-            <!-- 搜索框 -->
-            <!-- <div class="search-box d-none d-md-flex">
-              <i class="fas fa-search search-icon"></i>
-              <input 
-                type="text" 
-                class="search-input" 
-                placeholder="Search..."
-              >
-            </div> -->
-            
-            <!-- 通知 -->
-            <!-- <div class="nav-item dropdown">
-              <button class="nav-btn" data-bs-toggle="dropdown">
-                <i class="fas fa-bell"></i>
-                <span class="badge">3</span>
-              </button>
-              <div class="dropdown-menu dropdown-menu-end">
-                <div class="dropdown-header">Notifications</div>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-user-plus text-success me-2"></i>
-                  New user registration
-                </a>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-shopping-cart text-primary me-2"></i>
-                  New order
-                </a>
-              </div>
-            </div> -->
-            <h7>尊贵的五星会员张三，欢迎回来</h7>
+            <h7>尊贵的五星会员{{ currentUser.name }}，欢迎回来</h7>
             <!-- 用户菜单 -->
             <div class="nav-item dropdown">
               <button class="nav-btn user-btn" data-bs-toggle="dropdown">
@@ -138,9 +120,10 @@ export default {
     
     // 当前用户信息
     const currentUser = ref({
-      name: 'Admin',
-      email: 'admin@example.com',
-      role: 'Administrator'
+      name: '张三',
+      memberId: 'ABC4567890',
+      email: 'zhangsan@example.com',
+      role: 'VIP Member'
     })
     
     // 获取用户首字母
@@ -150,13 +133,138 @@ export default {
     
     // 菜单项
     const menuItems = ref([
-      { name: 'dashboard', path: '/dashboard', icon: 'fas fa-chart-line', label: 'Dashboard' },
-      { name: 'users', path: '/users', icon: 'fas fa-users', label: 'User Management' },
-      { name: 'products', path: '/products', icon: 'fas fa-box', label: 'Product Management' },
-      { name: 'orders', path: '/orders', icon: 'fas fa-shopping-cart', label: 'Order Management' },
-      { name: 'settings', path: '/settings', icon: 'fas fa-cog', label: 'System Settings' },
-      { name: 'mobile-debug', path: '/mobile-debug', icon: 'fas fa-mobile-alt', label: 'Mobile Debug' }
+      { 
+        name: 'dashboard', 
+        path: '/dashboard', 
+        icon: 'fas fa-chart-bar', 
+        label: 'Dashboard',
+        hasSubmenu: false
+      },
+      { 
+        name: 'plan', 
+        path: '/plan', 
+        icon: 'fas fa-gem', 
+        label: 'Plan',
+        hasSubmenu: true,
+        expanded: false
+      },
+      { 
+        name: 'products', 
+        path: '/products', 
+        icon: 'fas fa-shopping-bag', 
+        label: 'Products',
+        hasSubmenu: false
+      },
+      { 
+        name: 'pv-bv-log', 
+        path: '/pv-bv-log', 
+        icon: 'fas fa-file-alt', 
+        label: 'PV&BV log',
+        hasSubmenu: false
+      },
+      { 
+        name: 'bonus', 
+        path: '/bonus', 
+        icon: 'fas fa-coins', 
+        label: 'Bonus',
+        hasSubmenu: true,
+        expanded: false
+      },
+      { 
+        name: 'referrals', 
+        path: '/referrals', 
+        icon: 'fas fa-users', 
+        label: 'Referrals',
+        hasSubmenu: true,
+        expanded: false
+      },
+      { 
+        name: 'network', 
+        path: '/network', 
+        icon: 'fas fa-project-diagram', 
+        label: 'Network',
+        hasSubmenu: false
+      },
+      { 
+        name: 'deposit-offline', 
+        path: '/deposit-offline', 
+        icon: 'fas fa-credit-card', 
+        label: 'Deposit Offline',
+        hasSubmenu: false
+      },
+      { 
+        name: 'withdraw', 
+        path: '/withdraw', 
+        icon: 'fas fa-arrow-up', 
+        label: 'Withdraw',
+        hasSubmenu: false
+      },
+      { 
+        name: 'balance-transfer', 
+        path: '/balance-transfer', 
+        icon: 'fas fa-exchange-alt', 
+        label: 'Balance Transfer',
+        hasSubmenu: false
+      },
+      { 
+        name: 'transactions', 
+        path: '/transactions', 
+        icon: 'fas fa-list', 
+        label: 'Transactions',
+        hasSubmenu: false
+      },
+      { 
+        name: 'support-ticket', 
+        path: '/support-ticket', 
+        icon: 'fas fa-ticket-alt', 
+        label: 'Support Ticket',
+        hasSubmenu: false
+      },
+      { 
+        name: 'useful-materials', 
+        path: '/useful-materials', 
+        icon: 'fas fa-folder-open', 
+        label: 'Usefull Materials',
+        hasSubmenu: false
+      },
+      { 
+        name: 'profile', 
+        path: '/profile', 
+        icon: 'fas fa-user', 
+        label: 'Profile',
+        hasSubmenu: false
+      },
+      { 
+        name: 'change-password', 
+        path: '/change-password', 
+        icon: 'fas fa-lock', 
+        label: 'Change Password',
+        hasSubmenu: false
+      },
+      { 
+        name: 'logout', 
+        path: '#', 
+        icon: 'fas fa-sign-out-alt', 
+        label: 'Logout',
+        hasSubmenu: false,
+        isLogout: true
+      }
     ])
+    
+    // 处理导航点击
+    const handleNavClick = (item) => {
+      if (item.isLogout) {
+        logout()
+        return
+      }
+      
+      if (item.hasSubmenu) {
+        item.expanded = !item.expanded
+        return
+      }
+      
+      closeSidebar()
+    }
     
     // 获取当前页面标题
     const getCurrentPageTitle = () => {
@@ -193,11 +301,9 @@ export default {
     // 触摸事件处理
     const handleTouchStart = (e) => {
       const touch = e.touches[0]
-      const startX = touch.clientX
-      const startY = touch.clientY
       
       // 只有在屏幕边缘滑动时才处理
-      if (startX < 20 && window.innerWidth <= 768) {
+      if (touch.clientX < 20 && window.innerWidth <= 768) {
         showSidebar.value = true
       }
     }
@@ -214,6 +320,8 @@ export default {
       if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('token')
         sessionStorage.removeItem('token')
+        localStorage.removeItem('userInfo')
+        sessionStorage.removeItem('userInfo')
         router.push('/login')
       }
     }
@@ -239,6 +347,7 @@ export default {
       getCurrentPageTitle,
       toggleSidebar,
       closeSidebar,
+      handleNavClick,
       logout
     }
   }
@@ -270,32 +379,53 @@ export default {
   width: 70px;
 }
 
-.sidebar-header {
-  padding: 20px;
+/* 用户信息区域 */
+.user-profile-section {
+  padding: 30px 20px;
+  text-align: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.brand-logo {
+.user-avatar-container {
+  margin-bottom: 15px;
+}
+
+.user-avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%);
+  margin: 0 auto;
   display: flex;
   align-items: center;
+  justify-content: center;
   color: white;
+  font-size: 2rem;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.user-info {
+  color: white;
+}
+
+.user-id {
   font-size: 1.1rem;
   font-weight: 600;
+  margin-bottom: 10px;
+  letter-spacing: 0.5px;
 }
 
-.brand-icon {
-  font-size: 1.5rem;
-  color: #ffffff;
-  margin-right: 10px;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+.user-rating {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
 }
 
-.brand-text {
-  transition: opacity 0.3s ease;
-}
-
-.sidebar.collapsed .brand-text {
-  opacity: 0;
+.user-rating .fa-star {
+  color: #FFD700;
+  font-size: 1rem;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
 }
 
 /* 导航样式 */
@@ -324,6 +454,7 @@ export default {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
   transform: translateX(3px);
+  text-decoration: none;
 }
 
 .nav-item.active {
@@ -331,6 +462,7 @@ export default {
   color: #ffffff;
   box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
   font-weight: 500;
+  text-decoration: none;
 }
 
 .nav-icon {
@@ -345,20 +477,28 @@ export default {
   transition: opacity 0.3s ease;
 }
 
-.sidebar.collapsed .nav-text {
+.submenu-arrow {
+  margin-left: auto;
+  transition: transform 0.3s ease;
+}
+
+.submenu-arrow .rotated {
+  transform: rotate(180deg);
+}
+
+.sidebar.collapsed .nav-text,
+.sidebar.collapsed .submenu-arrow {
   opacity: 0;
 }
 
-.nav-indicator {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 30px;
-  background: #4CAF50;
-  border-radius: 2px;
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+.sidebar.collapsed .user-info {
+  opacity: 0;
+}
+
+.sidebar.collapsed .user-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  font-size: 1.2rem;
 }
 
 /* 主内容区域 */
@@ -417,44 +557,16 @@ export default {
   color: #495057;
 }
 
-.page-title h4 {
-  margin: 0;
-  color: #495057;
-  font-weight: 600;
-}
-
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
 }
 
-/* 搜索框 */
-.search-box {
-  position: relative;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 15px;
-  color: #6c757d;
-  font-size: 0.9rem;
-}
-
-.search-input {
-  border: 1px solid #e9ecef;
-  border-radius: 20px;
-  padding: 8px 15px 8px 40px;
-  width: 250px;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+.navbar-right h7 {
+  color: #495057;
+  font-weight: 500;
+  font-size: 0.95rem;
 }
 
 /* 导航按钮 */
@@ -473,37 +585,6 @@ export default {
 .nav-btn:hover {
   background: #f8f9fa;
   color: #495057;
-}
-
-.nav-btn .badge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  background: #dc3545;
-  color: white;
-  font-size: 0.6rem;
-  padding: 2px 5px;
-  border-radius: 10px;
-  min-width: 16px;
-  text-align: center;
-}
-
-/* 语言选择按钮 */
-.language-btn {
-  display: flex;
-  align-items: center;
-  min-width: 100px;
-  justify-content: center;
-}
-
-.language-text {
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.language-btn .fa-chevron-down {
-  font-size: 0.7rem;
-  opacity: 0.7;
 }
 
 /* 用户按钮 */
@@ -526,12 +607,6 @@ export default {
   font-size: 14px;
   overflow: hidden;
   font-weight: 600;
-}
-
-.user-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .user-initial {
@@ -638,10 +713,6 @@ export default {
     overflow-x: hidden;
   }
   
-  .search-box {
-    display: none !important;
-  }
-  
   .menu-toggle {
     min-height: 44px;
     min-width: 44px;
@@ -672,8 +743,8 @@ export default {
     margin-right: 18px;
   }
   
-  .page-title h4 {
-    font-size: 1.2rem;
+  .navbar-right h7 {
+    display: none;
   }
 }
 
@@ -688,10 +759,6 @@ export default {
     width: 100%;
     max-width: 100%;
     overflow-x: hidden;
-  }
-  
-  .page-title h4 {
-    font-size: 1.1rem;
   }
   
   .nav-item {
@@ -714,46 +781,6 @@ export default {
   .nav-btn {
     min-height: 48px;
     min-width: 48px;
-  }
-}
-
-@media (max-width: 375px) {
-  .navbar-container {
-    padding: 0 12px;
-    height: 54px;
-  }
-  
-  .page-content {
-    padding: 12px;
-    width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-  }
-  
-  .page-title h4 {
-    font-size: 1rem;
-  }
-  
-  .nav-item {
-    min-height: 52px;
-    padding: 20px 20px;
-    font-size: 1.1rem;
-  }
-  
-  .nav-icon {
-    font-size: 1.4rem;
-    margin-right: 22px;
-  }
-  
-  .menu-toggle {
-    min-height: 50px;
-    min-width: 50px;
-    font-size: 1.4rem;
-  }
-  
-  .nav-btn {
-    min-height: 50px;
-    min-width: 50px;
   }
 }
 </style> 

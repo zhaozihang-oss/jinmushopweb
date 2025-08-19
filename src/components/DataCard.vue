@@ -1,21 +1,27 @@
 <template>
   <div class="data-card" :class="cardClass">
+    <!-- 标题和图标在同一行 -->
     <div class="card-header">
-      <div class="card-icon-wrapper">
-        <div class="card-icon" :style="{ backgroundColor: iconBgColor }">
-          <i :class="icon" :style="{ color: iconColor }"></i>
-        </div>
+      <div>
+        <div class="card-title">{{ title }}</div>
+      <div class="main-value">{{ mainValue }}</div>
       </div>
-      <div class="card-title">{{ title }}</div>
+      <div class="card-icon" :style="{ backgroundColor: iconBgColor }">
+        <i :class="icon" :style="{ color: iconColor }"></i>
+      </div>
     </div>
     
-    <div class="card-content">
-      <div class="main-value">{{ mainValue }}</div>
-      <div class="sub-stats">
-        <div class="stat-item" v-for="stat in subStats" :key="stat.label">
-          <span class="stat-label">{{ stat.label }}</span>
-          <span class="stat-value" :style="{ color: stat.color || '#666' }">{{ stat.value }}</span>
-        </div>
+    <!-- 主数值 -->
+   
+    
+    <!-- 分隔线 -->
+    <!-- <div class="divider"></div> -->
+    
+    <!-- 底部统计信息 -->
+    <div class="sub-stats">
+      <div class="stat-item" v-for="stat in subStats" :key="stat.label">
+        <span class="stat-label">{{ stat.label }}</span>
+        <span class="stat-value" :style="{ color: stat.color || '#28a745' }">{{ stat.value }}</span>
       </div>
     </div>
   </div>
@@ -62,7 +68,7 @@ export default {
   background: #fff;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
   transition: all 0.3s ease;
   border: 1px solid #f0f0f0;
   height: 100%;
@@ -75,69 +81,66 @@ export default {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
+/* 标题和图标在同一行 */
 .card-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
-}
-
-.card-icon-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  margin-right: 10px;
+  margin-bottom: 20px;
 }
 
 .card-title {
-  color: #666;
-  font-size: 14px;
-  font-weight: 500;
+  color: #999;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1.4;
   flex: 1;
 }
 
-.card-content {
-  flex: 1;
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  opacity: 0.8;
 }
 
+/* 主数值样式 */
 .main-value {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #333;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   line-height: 1.2;
 }
 
+/* 分隔线 */
+.divider {
+  height: 1px;
+  background: #e9ecef;
+  margin-bottom: 15px;
+}
+
+/* 底部统计信息 */
 .sub-stats {
   display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  margin-top: auto;
+  gap: 30px;
+  align-items: center;
 }
 
 .stat-item {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  flex: 1;
 }
 
 .stat-label {
   font-size: 12px;
   color: #999;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -146,7 +149,7 @@ export default {
 .stat-value {
   font-size: 14px;
   font-weight: 600;
-  color: #666;
+  color: #28a745;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -155,67 +158,63 @@ export default {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .data-card {
-    padding: 15px;
+    padding: 16px;
   }
   
   .card-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+    margin-bottom: 16px;
   }
   
-  .card-icon-wrapper {
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .card-title {
-    margin: 0;
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
   }
   
   .main-value {
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 28px;
+    margin-bottom: 16px;
   }
   
   .sub-stats {
-    gap: 10px;
-  }
-  
-  .stat-item {
-    min-width: 80px;
+    gap: 20px;
   }
 }
 
 @media (max-width: 576px) {
   .data-card {
-    padding: 12px;
+    padding: 14px;
   }
   
-  .main-value {
-    font-size: 20px;
+  .card-header {
+    margin-bottom: 14px;
+  }
+  
+  .card-title {
+    font-size: 13px;
   }
   
   .card-icon {
-    width: 35px;
-    height: 35px;
+    width: 36px;
+    height: 36px;
     font-size: 16px;
   }
   
-  .sub-stats {
-    flex-direction: column;
-    gap: 8px;
+  .main-value {
+    font-size: 24px;
+    margin-bottom: 14px;
   }
   
-  .stat-item {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
+  .sub-stats {
+    gap: 16px;
   }
   
   .stat-label {
-    margin-bottom: 0;
+    font-size: 11px;
+  }
+  
+  .stat-value {
+    font-size: 13px;
   }
 }
 </style> 

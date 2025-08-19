@@ -21,10 +21,10 @@ const routes = [
         meta: { title: 'dashboard' }
       },
       {
-        path: 'users',
-        name: 'Users',
-        component: () => import('@/views/Users/Index.vue'),
-        meta: { title: 'users' }
+        path: 'plan',
+        name: 'Plan',
+        component: () => import('@/views/Plan/Index.vue'),
+        meta: { title: 'plan' }
       },
       {
         path: 'products',
@@ -33,22 +33,76 @@ const routes = [
         meta: { title: 'products' }
       },
       {
-        path: 'orders',
-        name: 'Orders',
-        component: () => import('@/views/Orders/Index.vue'),
-        meta: { title: 'orders' }
+        path: 'pv-bv-log',
+        name: 'PvBvLog',
+        component: () => import('@/views/PvBvLog/Index.vue'),
+        meta: { title: 'pv-bv-log' }
       },
       {
-        path: 'settings',
-        name: 'Settings',
-        component: () => import('@/views/Settings/Index.vue'),
-        meta: { title: 'settings' }
+        path: 'bonus',
+        name: 'Bonus',
+        component: () => import('@/views/Bonus/Index.vue'),
+        meta: { title: 'bonus' }
       },
       {
-        path: 'mobile-debug',
-        name: 'MobileDebug',
-        component: () => import('@/views/MobileDebug/Index.vue'),
-        meta: { title: 'mobile-debug' }
+        path: 'referrals',
+        name: 'Referrals',
+        component: () => import('@/views/Referrals/Index.vue'),
+        meta: { title: 'referrals' }
+      },
+      {
+        path: 'network',
+        name: 'Network',
+        component: () => import('@/views/Network/Index.vue'),
+        meta: { title: 'network' }
+      },
+      {
+        path: 'deposit-offline',
+        name: 'DepositOffline',
+        component: () => import('@/views/DepositOffline/Index.vue'),
+        meta: { title: 'deposit-offline' }
+      },
+      {
+        path: 'withdraw',
+        name: 'Withdraw',
+        component: () => import('@/views/Withdraw/Index.vue'),
+        meta: { title: 'withdraw' }
+      },
+      {
+        path: 'balance-transfer',
+        name: 'BalanceTransfer',
+        component: () => import('@/views/BalanceTransfer/Index.vue'),
+        meta: { title: 'balance-transfer' }
+      },
+      {
+        path: 'transactions',
+        name: 'Transactions',
+        component: () => import('@/views/Transactions/Index.vue'),
+        meta: { title: 'transactions' }
+      },
+      {
+        path: 'support-ticket',
+        name: 'SupportTicket',
+        component: () => import('@/views/SupportTicket/Index.vue'),
+        meta: { title: 'support-ticket' }
+      },
+      {
+        path: 'useful-materials',
+        name: 'UsefulMaterials',
+        component: () => import('@/views/UsefulMaterials/Index.vue'),
+        meta: { title: 'useful-materials' }
+      },
+      {
+        path: 'profile',
+        name: 'Profile',
+        component: () => import('@/views/Profile/Index.vue'),
+        meta: { title: 'profile' }
+      },
+      {
+        path: 'change-password',
+        name: 'ChangePassword',
+        component: () => import('@/views/ChangePassword/Index.vue'),
+        meta: { title: 'change-password' }
       }
     ]
   },

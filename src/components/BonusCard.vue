@@ -77,29 +77,30 @@ export default {
 
 .card-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .card-title {
-  color: #666;
-  font-size: 14px;
-  font-weight: 500;
+  color: #999;
+  font-size: 16px;
+  font-weight: 700;
   line-height: 1.4;
   flex: 1;
   margin-right: 10px;
 }
 
 .card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 20px;
   flex-shrink: 0;
+  opacity: 0.8;
 }
 
 .card-content {
@@ -109,7 +110,7 @@ export default {
 }
 
 .bonus-amount {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
   color: #333;
   line-height: 1.2;
@@ -119,31 +120,35 @@ export default {
 /* 响应式设计 */
 @media (max-width: 768px) {
   .bonus-card {
-    padding: 15px;
+    padding: 16px;
   }
   
   .card-header {
-    margin-bottom: 10px;
+    margin-bottom: 16px;
   }
   
   .bonus-amount {
-    font-size: 24px;
+    font-size: 28px;
   }
   
   .card-icon {
-    width: 35px;
-    height: 35px;
-    font-size: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
   }
 }
 
 @media (max-width: 576px) {
   .bonus-card {
-    padding: 12px;
+    padding: 14px;
+  }
+  
+  .card-header {
+    margin-bottom: 14px;
   }
   
   .bonus-amount {
-    font-size: 20px;
+    font-size: 24px;
   }
   
   .card-title {
@@ -151,9 +156,9 @@ export default {
   }
   
   .card-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 14px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
   }
 }
 </style> 

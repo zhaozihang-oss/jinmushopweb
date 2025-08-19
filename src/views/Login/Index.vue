@@ -116,10 +116,12 @@
 
 <script>
 import { ref, reactive } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'LoginIndex',
   setup() {
+    const router = useRouter()
     const showPassword = ref(false)
     const isVerified = ref(false)
     const sliderPosition = ref(0)
@@ -202,14 +204,42 @@ export default {
       // })
     }
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
       if (!isVerified.value) {
         alert('Please complete the verification first')
         return
       }
-      // 处理登录逻辑
-      console.log('Login attempt:', formData)
-      // 这里可以添加实际的登录API调用
+
+      if (!formData.memberId || !formData.password) {
+        alert('Please enter your member ID and password')
+        return
+      }
+
+      try {
+        // 模拟登录验证
+        // 这里可以替换为实际的API调用
+        if (formData.memberId === 'admin' && formData.password === 'admin') {
+          // 登录成功，存储token
+          const storage = formData.autoLogin ? localStorage : sessionStorage
+          storage.setItem('token', 'mock-token-' + Date.now())
+          storage.setItem('userInfo', JSON.stringify({
+            id: 1,
+            memberId: formData.memberId,
+            name: 'Administrator',
+            role: 'admin'
+          }))
+          
+          alert('Login successful!')
+          
+          // 跳转到仪表板
+          router.push('/dashboard')
+        } else {
+          alert('Invalid member ID or password')
+        }
+      } catch (error) {
+        console.error('Login error:', error)
+        alert('Login failed. Please try again.')
+      }
     }
 
     return {
