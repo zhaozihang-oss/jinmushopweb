@@ -27,6 +27,18 @@ const routes = [
         meta: { title: 'plan' }
       },
       {
+        path: 'register-plan',
+        name: 'RegisterPlan',
+        component: () => import('@/views/Plan/RegisterPlan.vue'),
+        meta: { title: 'register-plan' }
+      },
+      {
+        path: 'upgrade-plan',
+        name: 'UpgradePlan',
+        component: () => import('@/views/Plan/UpgradePlan.vue'),
+        meta: { title: 'upgrade-plan' }
+      },
+      {
         path: 'products',
         name: 'Products',
         component: () => import('@/views/Products/Index.vue'),
@@ -43,6 +55,18 @@ const routes = [
         name: 'Bonus',
         component: () => import('@/views/Bonus/Index.vue'),
         meta: { title: 'bonus' }
+      },
+      {
+        path: 'bonus-log',
+        name: 'BonusLog',
+        component: () => import('@/views/Bonus/BonusLog.vue'),
+        meta: { title: 'bonus-log' }
+      },
+      {
+        path: 'bonus-history',
+        name: 'BonusHistory',
+        component: () => import('@/views/Bonus/BonusHistory.vue'),
+        meta: { title: 'bonus-history' }
       },
       {
         path: 'referrals',

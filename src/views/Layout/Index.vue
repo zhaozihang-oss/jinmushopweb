@@ -20,25 +20,45 @@
       
       <nav class="sidebar-nav">
         <div class="nav-section">
-          <router-link 
-            v-for="item in menuItems" 
-            :key="item.name"
-            :to="item.path" 
-            class="nav-item"
-            :class="{ 
-              'active': $route.path === item.path,
-              'has-submenu': item.hasSubmenu 
-            }"
-            @click="handleNavClick(item)"
-          >
-            <div class="nav-icon">
-              <i :class="item.icon"></i>
+          <template v-for="item in menuItems" :key="item.name">
+            <!-- 主菜单项 -->
+            <router-link 
+              :to="item.hasSubmenu ? '#' : item.path" 
+              class="nav-item"
+              :class="{ 
+                'active': !item.hasSubmenu && $route.path === item.path,
+                'has-submenu': item.hasSubmenu 
+              }"
+              @click="handleNavClick(item)"
+            >
+              <div class="nav-icon">
+                <i :class="item.icon"></i>
+              </div>
+              <span v-if="!sidebarCollapsed" class="nav-text">{{ item.label }}</span>
+              <div v-if="item.hasSubmenu && !sidebarCollapsed" class="submenu-arrow">
+                <i class="fas fa-chevron-down" :class="{ 'rotated': item.expanded }"></i>
+              </div>
+            </router-link>
+            
+            <!-- 子菜单项 -->
+            <div v-if="item.hasSubmenu && item.expanded && !sidebarCollapsed" class="submenu-container">
+              <router-link 
+                v-for="subItem in item.children" 
+                :key="subItem.name"
+                :to="subItem.path" 
+                class="nav-item submenu-item"
+                :class="{ 
+                  'active': $route.path === subItem.path
+                }"
+                @click="closeSidebar"
+              >
+                <div class="nav-icon">
+                  <i :class="subItem.icon"></i>
+                </div>
+                <span class="nav-text">{{ subItem.label }}</span>
+              </router-link>
             </div>
-            <span v-if="!sidebarCollapsed" class="nav-text">{{ item.label }}</span>
-            <div v-if="item.hasSubmenu && !sidebarCollapsed" class="submenu-arrow">
-              <i class="fas fa-chevron-down" :class="{ 'rotated': item.expanded }"></i>
-            </div>
-          </router-link>
+          </template>
         </div>
       </nav>
     </div>
@@ -146,7 +166,21 @@ export default {
         icon: 'fas fa-gem', 
         label: 'Plan',
         hasSubmenu: true,
-        expanded: false
+        expanded: false,
+        children: [
+          {
+            name: 'register-plan',
+            path: '/register-plan',
+            icon: 'fas fa-clipboard-list',
+            label: 'Register Plan'
+          },
+          {
+            name: 'upgrade-plan',
+            path: '/upgrade-plan',
+            icon: 'fas fa-arrow-up',
+            label: 'Upgrade Plan'
+          }
+        ]
       },
       { 
         name: 'products', 
@@ -168,7 +202,21 @@ export default {
         icon: 'fas fa-coins', 
         label: 'Bonus',
         hasSubmenu: true,
-        expanded: false
+        expanded: false,
+        children: [
+          {
+            name: 'bonus-log',
+            path: '/bonus-log',
+            icon: 'fas fa-file-alt',
+            label: 'Bonus Log'
+          },
+          {
+            name: 'bonus-history',
+            path: '/bonus-history',
+            icon: 'fas fa-history',
+            label: 'Bonus History'
+          }
+        ]
       },
       { 
         name: 'referrals', 
@@ -484,6 +532,36 @@ export default {
 
 .submenu-arrow .rotated {
   transform: rotate(180deg);
+}
+
+/* 子菜单样式 */
+.submenu-container {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  margin: 5px 10px;
+  overflow: hidden;
+}
+
+.submenu-item {
+  padding: 10px 20px 10px 45px !important;
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+.submenu-item:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(5px);
+}
+
+.submenu-item.active {
+  background: linear-gradient(90deg, #4CAF50 0%, #45a049 100%);
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.submenu-item .nav-icon {
+  width: 16px;
+  font-size: 0.9rem;
+  margin-right: 12px;
 }
 
 .sidebar.collapsed .nav-text,

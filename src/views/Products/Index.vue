@@ -318,6 +318,7 @@
 
 <script>
 import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import Pagination from '@/components/Pagination.vue'
 import AddressList from './components/list.vue'
 import OrderList from './components/orderList.vue'
@@ -330,6 +331,7 @@ export default {
     OrderList
   },
   setup() {
+    const route = useRoute()
     const isMobile = ref(false)
     const currentPage = ref(1)
     const itemsPerPage = ref(10)
@@ -756,6 +758,11 @@ export default {
     onMounted(() => {
       checkDeviceType()
       window.addEventListener('resize', checkDeviceType)
+      
+      // 检查路由参数，如果有 tab=orderList 则显示订单列表
+      if (route.query.tab === 'orderList') {
+        showOrderList.value = true
+      }
     })
 
     return {
