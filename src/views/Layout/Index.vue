@@ -224,7 +224,21 @@ export default {
         icon: 'fas fa-users', 
         label: 'Referrals',
         hasSubmenu: true,
-        expanded: false
+        expanded: false,
+        children: [
+          {
+            name: 'my-referrals',
+            path: '/referrals/my-referrals',
+            icon: 'fas fa-user-friends',
+            label: 'My Referrals'
+          },
+          {
+            name: 'my-subrefer',
+            path: '/referrals/my-subrefer',
+            icon: 'fas fa-sitemap',
+            label: 'My Subrefer'
+          }
+        ]
       },
       { 
         name: 'network', 

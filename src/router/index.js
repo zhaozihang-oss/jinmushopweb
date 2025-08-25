@@ -70,9 +70,19 @@ const routes = [
       },
       {
         path: 'referrals',
-        name: 'Referrals',
-        component: () => import('@/views/Referrals/Index.vue'),
-        meta: { title: 'referrals' }
+        redirect: 'referrals/my-referrals'
+      },
+      {
+        path: 'referrals/my-referrals',
+        name: 'MyReferrals',
+        component: () => import('@/views/Referrals/MyReferrals.vue'),
+        meta: { title: 'my-referrals' }
+      },
+      {
+        path: 'referrals/my-subrefer',
+        name: 'MySubrefer',
+        component: () => import('@/views/Referrals/MySubrefer.vue'),
+        meta: { title: 'my-subrefer' }
       },
       {
         path: 'network',
