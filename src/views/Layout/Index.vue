@@ -70,39 +70,51 @@
         <div class="navbar-container">
           <div class="navbar-left">
             <button 
-              class="menu-toggle"
+              class="menu-toggle d-md-none"
               @click="toggleSidebar"
             >
               <i class="fas fa-bars"></i>
             </button>
+            <!-- Logo -->
+            <div class="navbar-logo">
+              <img src="@/assets/img/logobai.png" alt="JIMON GROUP" class="logo-img">
+              <!-- <span class="logo-text">JIMON GROUP</span> -->
+            </div>
           </div>
           
           <div class="navbar-right">
-            <h7>尊贵的五星会员{{ currentUser.name }}，欢迎回来</h7>
-            <!-- 用户菜单 -->
-            <div class="nav-item dropdown">
-              <button class="nav-btn user-btn" data-bs-toggle="dropdown">
-                <div class="user-avatar">
-                  <span class="user-initial">{{ getUserInitial() }}</span>
-                </div>
-                <span class="user-name d-none d-md-inline">{{ currentUser.name }}</span>
+            <!-- 用户下拉菜单 -->
+            <div class="user-dropdown dropdown">
+              <button 
+                class="user-dropdown-btn dropdown-toggle" 
+                type="button" 
+                data-bs-toggle="dropdown" 
+                aria-expanded="false"
+              >
+                {{ currentUser.memberId }} | {{ currentUser.name }}
+                <!-- <i class="fas fa-chevron-down ms-2"></i> -->
               </button>
-              <div class="dropdown-menu dropdown-menu-end">
-                <div class="dropdown-header">{{ currentUser.name }}</div>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-user me-2"></i>
-                  Profile
-                </a>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-cog me-2"></i>
-                  Settings
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" @click="logout">
-                  <i class="fas fa-sign-out-alt me-2"></i>
-                  Logout
-                </a>
-              </div>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <router-link to="/profile" class="dropdown-item">
+                    <i class="fas fa-user me-2"></i>
+                    Profile
+                  </router-link>
+                </li>
+                <li>
+                  <router-link to="/change-password" class="dropdown-item">
+                    <i class="fas fa-key me-2"></i>
+                    Change Password
+                  </router-link>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <a class="dropdown-item" href="#" @click="logout">
+                    <i class="fas fa-sign-out-alt me-2"></i>
+                    Logout
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -140,8 +152,8 @@ export default {
     
     // 当前用户信息
     const currentUser = ref({
-      name: '张三',
-      memberId: 'ABC4567890',
+      name: 'ABC4567890',
+      memberId: '202501',
       email: 'zhangsan@example.com',
       role: 'VIP Member'
     })
@@ -613,9 +625,9 @@ export default {
 
 /* 顶部导航 */
 .top-navbar {
-  background: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border-bottom: 1px solid #e9ecef;
+  background: #52a58a;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-bottom: none;
   z-index: 100;
 }
 
@@ -630,12 +642,32 @@ export default {
 .navbar-left {
   display: flex;
   align-items: center;
+  gap: 20px;
+}
+
+/* Logo样式 */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-img {
+  height: 52px;
+  width: auto;
+}
+
+.logo-text {
+  color: white;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .menu-toggle {
   background: none;
   border: none;
-  color: #6c757d;
+  color: white;
   font-size: 1.2rem;
   margin-right: 20px;
   padding: 8px;
@@ -645,8 +677,8 @@ export default {
 }
 
 .menu-toggle:hover {
-  background: #f8f9fa;
-  color: #495057;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .navbar-right {
@@ -655,10 +687,70 @@ export default {
   gap: 20px;
 }
 
-.navbar-right h7 {
-  color: #495057;
+/* 用户下拉菜单 */
+.user-dropdown {
+  position: relative;
+}
+
+.user-dropdown-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: 500;
-  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.user-dropdown-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+.user-dropdown-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.user-dropdown .dropdown-menu {
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 8px 0;
+  min-width: 200px;
+  margin-top: 8px;
+}
+
+.user-dropdown .dropdown-item {
+  padding: 10px 20px;
+  font-size: 14px;
+  color: #495057;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+}
+
+.user-dropdown .dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #198754;
+  text-decoration: none;
+}
+
+.user-dropdown .dropdown-item i {
+  width: 16px;
+  text-align: center;
+}
+
+.user-dropdown .dropdown-divider {
+  margin: 8px 0;
+  border-color: #e9ecef;
 }
 
 /* 导航按钮 */
@@ -679,39 +771,7 @@ export default {
   color: #495057;
 }
 
-/* 用户按钮 */
-.user-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 10px;
-}
 
-.user-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 14px;
-  overflow: hidden;
-  font-weight: 600;
-}
-
-.user-initial {
-  font-size: 14px;
-  font-weight: 600;
-  color: white;
-}
-
-.user-name {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #495057;
-}
 
 /* 下拉菜单 */
 .dropdown-menu {
@@ -794,8 +854,21 @@ export default {
   }
   
   .navbar-container {
-    padding: 0 20px;
+    padding: 0 10px;
     height: 60px;
+  }
+  
+  .navbar-left {
+    gap: 5px;
+  }
+  
+  .logo-text {
+    display: none;
+  }
+  
+  .user-dropdown-btn {
+    font-size: 12px;
+    padding: 6px 12px;
   }
   
   .page-content {
@@ -835,15 +908,34 @@ export default {
     margin-right: 18px;
   }
   
-  .navbar-right h7 {
-    display: none;
-  }
+
 }
 
 @media (max-width: 576px) {
   .navbar-container {
-    padding: 0 15px;
+    padding: 0 8px;
     height: 56px;
+  }
+  
+  .navbar-left {
+    gap: 2px;
+  }
+  
+  .navbar-logo {
+    gap: 8px;
+  }
+  
+  .logo-img {
+    height: 40px;
+  }
+  
+  .user-dropdown-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+  
+  .user-dropdown .dropdown-menu {
+    min-width: 180px;
   }
   
   .page-content {
