@@ -277,6 +277,8 @@ export default {
       })
     }
 
+
+
     const handleSubmit = () => {
       console.log('Profile submitted:', profileData)
       // Handle form submission logic here

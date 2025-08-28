@@ -217,30 +217,34 @@ export default {
       handleConfirm()
     }
 
-    // Reset form when modal closes or load data when editing
+
+
+    // Reset form when modal opens/closes or load data when editing
     watch(() => props.show, (newVal) => {
-      if (newVal && props.editingAddress) {
-        // Load existing address data for editing
-        Object.assign(addressData, {
-          contact: props.editingAddress.contact || '',
-          countryCode: props.editingAddress.countryCode || '+92',
-          mobile: props.editingAddress.mobile || '',
-          address: props.editingAddress.address || '',
-          zipCode: props.editingAddress.zipCode || '',
-          country: props.editingAddress.country || 'Pakistan',
-          isDefault: props.editingAddress.isDefault || false
-        })
-      } else if (!newVal) {
-        // Reset form data when closing
-        Object.assign(addressData, {
-          contact: '',
-          countryCode: '+92',
-          mobile: '',
-          address: '',
-          zipCode: '',
-          country: 'Pakistan',
-          isDefault: false
-        })
+      if (newVal) {
+        if (props.editingAddress) {
+          // Load existing address data for editing
+          Object.assign(addressData, {
+            contact: props.editingAddress.contact || '',
+            countryCode: props.editingAddress.countryCode || '+92',
+            mobile: props.editingAddress.mobile || '',
+            address: props.editingAddress.address || '',
+            zipCode: props.editingAddress.zipCode || '',
+            country: props.editingAddress.country || 'Pakistan',
+            isDefault: props.editingAddress.isDefault || false
+          })
+        } else {
+          // Reset form data for new address
+          Object.assign(addressData, {
+            contact: '',
+            countryCode: '+92',
+            mobile: '',
+            address: '',
+            zipCode: '',
+            country: 'Pakistan',
+            isDefault: false
+          })
+        }
       }
     })
 
