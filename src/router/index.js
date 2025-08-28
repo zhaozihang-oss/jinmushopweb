@@ -143,6 +143,12 @@ const routes = [
         name: 'Cart',
         component: () => import('@/views/Cart/Index.vue'),
         meta: { title: 'cart' }
+      },
+      {
+        path: 'useful-materials',
+        name: 'UsefulMaterials',
+        component: () => import('@/views/UsefulMaterials/Index.vue'),
+        meta: { title: 'useful-materials' }
       }
     ]
   },
